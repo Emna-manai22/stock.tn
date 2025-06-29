@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Historique de mes demandes</title>
+</head>
+<body>
+    <h1>Historique de mes demandes</h1>
+
+    <a href="{% url 'dashboard_user' %}">← Retour au dashboard</a>
+
+    {% if demandes %}
+        <table border="1" cellpadding="5" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>Quantité demandée</th>
+                    <th>Date de la demande</th>
+                    <th>Statut</th>
+                    <th>Motif de refus</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for demande in demandes %}
+                    <tr>
+                        <td>{{ demande.produit.nom }}</td>
+                        <td>{{ demande.quantite_demandee }}</td>
+                        <td>{{ demande.date_creation|date:"d/m/Y H:i" }}</td>
+                        <td>{{ demande.get_statut_display }}</td>
+                        <td>{{ demande.motif_refus|default:"-" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Vous n'avez encore fait aucune demande.</p>
+    {% endif %}
+</body>
+</html>

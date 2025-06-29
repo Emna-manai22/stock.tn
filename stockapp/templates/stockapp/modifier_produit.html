@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Modifier produit</title>
+</head>
+<body>
+    <h1>Modifier produit</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Enregistrer</button>
+    </form>
+    <p><a href="{% url 'gestion_stock' %}">← Retour à la gestion stock</a></p>
+</body>
+</html>

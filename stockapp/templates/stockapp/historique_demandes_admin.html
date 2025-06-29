@@ -1,0 +1,26 @@
+<table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Utilisateur</th>
+            <th>Agence</th>  <!-- nouvelle colonne -->
+            <th>Produit</th>
+            <th>Quantité demandée</th>
+            <th>Date de la demande</th>
+            <th>Statut</th>
+            <th>Motif de refus</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for demande in demandes %}
+            <tr>
+                <td>{{ demande.utilisateur.username }}</td>
+                <td>{{ demande.utilisateur.agence.libelle }}</td>  <!-- Affiche le nom de l'agence -->
+                <td>{{ demande.produit.nom }}</td>
+                <td>{{ demande.quantite_demandee }}</td>
+                <td>{{ demande.date_creation|date:"d/m/Y H:i" }}</td>
+                <td>{{ demande.get_statut_display }}</td>
+                <td>{{ demande.motif_refus|default:"-" }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

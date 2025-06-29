@@ -1,0 +1,80 @@
+<!-- stockapp/templates/stockapp/register.html -->
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Inscription</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 480px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: #f4f4f4;
+        }
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px #aaa;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+        .submit-btn {
+            margin-top: 20px;
+            background: #007bff;
+            border: none;
+            color: white;
+            padding: 12px;
+            width: 100%;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background: #0056b3;
+        }
+        .errorlist {
+            color: red;
+            list-style: none;
+            padding-left: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Créer un compte</h1>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+        {% for field in form %}
+            {{ field.label_tag }}
+            {{ field }}
+
+            {% if field.errors %}
+                <ul class="errorlist">
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endfor %}
+
+        <button type="submit" class="submit-btn">S'inscrire</button>
+    </form>
+
+    <p>Déjà un compte ? <a href="{% url 'login' %}">Connectez-vous ici</a>.</p>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Gestion Stock</title>
+</head>
+<body>
+    <h1>Gestion du stock</h1>
+    <a href="{% url 'ajouter_produit' %}">Ajouter un nouveau produit</a>
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Catégorie</th>
+                <th>Quantité</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for produit in produits %}
+            <tr>
+                <td>{{ produit.nom }}</td>
+                <td>{{ produit.categorie }}</td>
+                <td>{{ produit.quantite }}</td>
+                <td>
+                    <a href="{% url 'modifier_produit' produit.id %}">Modifier</a> |
+                    <a href="{% url 'supprimer_produit' produit.id %}">Supprimer</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4">Aucun produit trouvé.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p><a href="{% url 'dashboard_admin' %}">← Retour au dashboard</a></p>
+</body>
+</html>

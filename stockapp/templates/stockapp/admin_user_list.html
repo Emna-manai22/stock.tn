@@ -1,0 +1,237 @@
+{% extends "stockapp/base.html" %}
+
+{% block content %}
+<style>
+    :root {
+        --topnet-blue: #003366;
+        --topnet-orange: #ff6600;
+        --topnet-light-blue: #f0f6ff;
+        --topnet-light-orange: #fff4e6;
+        --radius: 8px;
+        --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        --transition: 0.3s ease;
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    h2 {
+        font-family: var(--font);
+        color: var(--topnet-blue);
+        font-size: 2.4rem;
+        font-weight: 700;
+        margin-bottom: 30px;
+        animation: fadeInDown 0.6s ease;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .btn-create {
+        background: var(--topnet-orange);
+        color: #fff;
+        padding: 10px 24px;
+        font-weight: 600;
+        border-radius: 50px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+        box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
+        margin-bottom: 24px;
+    }
+
+    .btn-create:hover {
+        background: #cc5200;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 102, 0, 0.5);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+        font-family: var(--font);
+        animation: fadeInTable 0.8s ease;
+    }
+
+    @keyframes fadeInTable {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    thead {
+        background: var(--topnet-blue);
+        color: #fff;
+    }
+
+    thead th {
+        padding: 16px 20px;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    tbody tr {
+        background: #fff;
+        box-shadow: var(--shadow);
+        transition: transform var(--transition), box-shadow var(--transition);
+    }
+
+    tbody tr:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        background-color: var(--topnet-light-orange);
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: var(--topnet-light-blue);
+    }
+
+    td {
+        padding: 16px 20px;
+        font-size: 0.95rem;
+        color: var(--topnet-blue);
+        vertical-align: middle;
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        border: 2px solid transparent;
+        transition: all var(--transition);
+        cursor: pointer;
+    }
+
+    .btn-edit {
+        background: var(--topnet-light-blue);
+        color: var(--topnet-blue);
+        border-color: var(--topnet-blue);
+    }
+
+    .btn-edit:hover {
+        background: var(--topnet-blue);
+        color: #fff;
+    }
+
+    .btn-delete {
+        background: var(--topnet-light-orange);
+        color: var(--topnet-orange);
+        border-color: var(--topnet-orange);
+    }
+
+    .btn-delete:hover {
+        background: var(--topnet-orange);
+        color: #fff;
+    }
+
+    .empty-row td {
+        text-align: center;
+        padding: 40px 20px;
+        color: #888;
+        font-style: italic;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        table, thead, tbody, tr, th, td {
+            display: block;
+            width: 100%;
+        }
+
+        thead {
+            display: none;
+        }
+
+        tr {
+            margin-bottom: 20px;
+            border-radius: var(--radius);
+        }
+
+        td {
+            padding: 14px 16px;
+            position: relative;
+            font-size: 0.95rem;
+        }
+
+        td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            color: var(--topnet-blue);
+            position: absolute;
+            left: 16px;
+            top: 12px;
+            width: 140px;
+            display: inline-block;
+        }
+
+        td:not(:last-child) {
+            padding-left: 160px;
+        }
+    }
+</style>
+
+<div class="container py-4">
+    <h2>Utilisateurs</h2>
+
+    <a href="{% url 'admin_user_create' %}" class="btn-create">
+        <i class="bi bi-person-plus-fill"></i> Créer un utilisateur
+    </a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Matricule</th>
+                <th>Agence</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td data-label="Username">{{ user.username }}</td>
+                    <td data-label="Email">{{ user.email }}</td>
+                    <td data-label="Matricule">{{ user.matricule }}</td>
+                    <td data-label="Agence">{{ user.agence }}</td>
+                    <td data-label="Actions">
+                        <a href="{% url 'admin_user_update' user.id %}" class="action-btn btn-edit">
+                            <i class="bi bi-pencil-square"></i> Modifier
+                        </a>
+                        <a href="{% url 'admin_user_delete' user.id %}" class="action-btn btn-delete">
+                            <i class="bi bi-trash"></i> Supprimer
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr class="empty-row">
+                    <td colspan="5">
+                        Aucun utilisateur trouvé.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

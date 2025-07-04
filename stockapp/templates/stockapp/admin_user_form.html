@@ -1,0 +1,160 @@
+{% extends "stockapp/base.html" %}
+
+{% block content %}
+<style>
+  :root {
+    --topnet-blue: #003366;
+    --topnet-orange: #ff6600;
+    --topnet-light-bg: rgba(255, 255, 255, 0.95);
+    --text-dark: #222;
+    --border-radius: 12px;
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --transition-speed: 0.3s;
+  }
+
+  .form-container {
+    max-width: 500px;
+    margin: 60px auto;
+    background: var(--topnet-light-bg);
+    padding: 40px 36px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    font-family: var(--font-family);
+    animation: fadeInForm 0.8s ease-out;
+    backdrop-filter: blur(6px);
+  }
+
+  @keyframes fadeInForm {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  h2 {
+    color: var(--topnet-blue);
+    font-weight: 700;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .form-group {
+    margin-bottom: 24px;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--topnet-blue);
+    font-size: 1rem;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 14px 18px;
+    font-size: 1rem;
+    border: 1.8px solid #ccc;
+    border-radius: var(--border-radius);
+    transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+    font-family: var(--font-family);
+    background-color: #fff;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--topnet-orange);
+    box-shadow: 0 0 10px rgba(255, 102, 0, 0.4);
+  }
+
+  .errorlist {
+    margin-top: 6px;
+    margin-left: 18px;
+    color: #d9534f;
+    font-size: 0.9rem;
+    list-style-type: disc;
+  }
+
+  .errorlist li {
+    margin-left: 8px;
+  }
+
+  .btn-primary {
+    width: 100%;
+    background-color: var(--topnet-orange);
+    color: white;
+    padding: 16px 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 50px;
+    box-shadow: 0 8px 18px rgba(255, 102, 0, 0.4);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    letter-spacing: 0.03em;
+  }
+
+  .btn-primary:hover,
+  .btn-primary:focus {
+    background-color: #cc5200;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(204, 82, 0, 0.6);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 6px 16px rgba(255, 102, 0, 0.4);
+  }
+
+  .links-container {
+    margin-top: 28px;
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    font-size: 0.95rem;
+  }
+
+  .links-container a {
+    font-weight: 700;
+    color: var(--topnet-blue);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color var(--transition-speed), border-color var(--transition-speed);
+  }
+
+  .links-container a:hover {
+    color: var(--topnet-orange);
+    border-color: var(--topnet-orange);
+  }
+</style>
+
+<div class="form-container">
+  <h2>{{ title }}</h2>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      <div class="form-group">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+          <ul class="errorlist">
+            {% for error in field.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Valider</button>
+  </form>
+
+
+</div>
+{% endblock %}

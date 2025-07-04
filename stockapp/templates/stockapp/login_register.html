@@ -1,0 +1,419 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stock Management - Connexion</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --primary: #003399;
+      --secondary: #ff6600;
+      --border-glow: #0055cc;
+      --bg-dark: #000a29;
+      --bg-light: #001f66;
+      --text-light: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--bg-dark), var(--bg-light));
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-light);
+      overflow: hidden;
+    }
+
+    .container {
+      position: relative;
+      width: 420px;
+      max-height: 520px;
+      padding: 40px 50px 40px 50px;
+      background: rgba(0,0,0,0.85);
+      border-radius: 14px;
+      box-shadow:
+        0 0 8px 2px var(--border-glow),
+        0 0 20px 5px rgba(0, 85, 204, 0.7);
+      animation: glowPulse 3s ease-in-out infinite alternate;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+    }
+
+    .container::-webkit-scrollbar {
+      display: none;
+    }
+
+    @keyframes glowPulse {
+      0% {
+        box-shadow:
+          0 0 8px 2px var(--border-glow),
+          0 0 20px 5px rgba(0, 85, 204, 0.7);
+      }
+      100% {
+        box-shadow:
+          0 0 18px 6px var(--border-glow),
+          0 0 30px 12px rgba(0, 85, 204, 0.9);
+      }
+    }
+
+    .orbit-dot {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background-color: var(--secondary);
+      border-radius: 50%;
+      box-shadow: 0 0 25px var(--secondary);
+      animation: orbitSquare 8s linear infinite;
+      top: 0;
+      left: 0;
+      z-index: 10;
+    }
+
+    @keyframes orbitSquare {
+      0%   { top: 0; left: 0; }
+      25%  { top: 0; left: calc(100% - 16px); }
+      50%  { top: calc(100% - 16px); left: calc(100% - 16px); }
+      75%  { top: calc(100% - 16px); left: 0; }
+      100% { top: 0; left: 0; }
+    }
+
+    /* Logo carré, sans fond ni bordure, lumineux */
+    .logo-container {
+      text-align: center;
+      margin-bottom: 25px;
+      user-select: none;
+    }
+    .logo-container img {
+      width: 140px;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 0; /* carré */
+      filter: brightness(1.5) saturate(1.3);
+      pointer-events: none;
+      user-select: none;
+      display: inline-block;
+      box-shadow: none;
+      transition: none;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--secondary);
+      text-shadow: 0 0 8px var(--secondary);
+      user-select: none;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #ddd;
+      user-select: none;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px 16px;
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 2px solid var(--primary);
+      background: #111b3c;
+      color: #dce6ff;
+      font-size: 16px;
+      transition: border-color 0.3s ease, background 0.3s ease;
+    }
+
+    input::placeholder, select::placeholder {
+      color: #8393c9;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--secondary);
+      background: #122255;
+      color: #fff;
+    }
+
+    label[for="id_agence"] {
+      margin-top: 25px;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--secondary);
+      letter-spacing: 0.03em;
+      user-select: none;
+    }
+    #id_agence {
+      font-weight: 600;
+      font-size: 16px;
+      letter-spacing: 0.02em;
+      background: #1a1a1a;
+      color: var(--secondary);
+      border-color: var(--secondary);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--secondary) 50%),
+        linear-gradient(135deg, var(--secondary) 50%, transparent 50%),
+        linear-gradient(to right, #222, #222);
+      background-position:
+        calc(100% - 20px) calc(1em + 2px),
+        calc(100% - 15px) calc(1em + 2px),
+        calc(100% - 25px) 0.5em;
+      background-size: 5px 5px, 5px 5px, 1px 1.5em;
+      background-repeat: no-repeat;
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    }
+    #id_agence:hover,
+    #id_agence:focus {
+      background-color: #2f1f00;
+      border-color: #ff8c00;
+      color: #fff;
+    }
+
+    button {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border: none;
+      padding: 16px;
+      width: 100%;
+      border-radius: 10px;
+      color: #fff;
+      margin-top: 30px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 18px;
+      box-shadow: 0 5px 18px rgba(255, 102, 0, 0.7);
+      transition: background 0.4s ease, box-shadow 0.4s ease;
+      user-select: none;
+    }
+    button:hover {
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+      box-shadow: 0 7px 25px rgba(255, 102, 0, 1);
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 35px;
+    }
+    .tab {
+      margin: 0 22px;
+      font-weight: 700;
+      cursor: pointer;
+      padding-bottom: 6px;
+      color: #aaa;
+      transition: color 0.3s, border-bottom-color 0.3s;
+      user-select: none;
+      font-size: 17px;
+    }
+    .tab.active {
+      color: var(--primary);
+      border-bottom: 3px solid var(--primary);
+      font-size: 20px;
+    }
+
+    #login-form, #register-form {
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .hidden {
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+      top: 120px;
+      left: 50px;
+      right: 50px;
+      transform: translateY(20px);
+    }
+    .active {
+      opacity: 1;
+      pointer-events: auto;
+      position: static;
+      transform: translateY(0);
+    }
+
+    .message {
+      background-color: #cc3300;
+      color: white;
+      padding: 8px 12px;
+      margin-top: 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      user-select: none;
+      box-shadow: 0 0 8px #a00e00;
+    }
+
+    .footer-link {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 15px;
+      user-select: none;
+      color: var(--text-light);
+      border-top: 1px solid rgba(255, 102, 0, 0.3);
+      padding-top: 12px;
+    }
+    .footer-link a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .footer-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container" tabindex="0">
+    <div class="orbit-dot"></div>
+
+    <!-- Logo Topnet -->
+    <div class="logo-container" role="img" aria-label="Logo Topnet">
+      <img src="{% static 'images/logo.png' %}" alt="Logo Topnet" />
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Navigation formulaire">
+      <span class="tab active" id="tab-login" role="tab" tabindex="0" aria-selected="true" aria-controls="login-form">Connexion</span>
+      <span class="tab" id="tab-register" role="tab" tabindex="-1" aria-selected="false" aria-controls="register-form">Inscription</span>
+    </div>
+
+    <!-- Login Form -->
+    <section id="login-form" class="active" role="tabpanel" aria-labelledby="tab-login">
+      <h2>Connexion</h2>
+      <form method="post" action="{% url 'login' %}" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="login" />
+
+        {% if login_form.non_field_errors %}
+          <div class="message" role="alert">
+            {% for error in login_form.non_field_errors %}
+              {{ error }}<br>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <label for="{{ login_form.username.id_for_label }}">Email ou Nom d'utilisateur</label>
+        {{ login_form.username }}
+
+        <label for="{{ login_form.password.id_for_label }}">Mot de passe</label>
+        {{ login_form.password }}
+
+        <button type="submit">Se connecter</button>
+
+        <div class="footer-link">
+          Vous n'avez pas de compte ? <a href="#" id="switch-to-register">Créer un compte</a>
+        </div>
+      </form>
+    </section>
+
+    <!-- Register Form -->
+    <section id="register-form" class="hidden" role="tabpanel" aria-labelledby="tab-register">
+      <h2>Inscription</h2>
+      <form method="post" action="{% url 'login' %}" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="register" />
+
+        <label for="{{ register_form.last_name.id_for_label }}">Nom</label>
+        {{ register_form.last_name }}
+
+        <label for="{{ register_form.first_name.id_for_label }}">Prénom</label>
+        {{ register_form.first_name }}
+
+        <label for="{{ register_form.username.id_for_label }}">Nom d'utilisateur</label>
+        {{ register_form.username }}
+
+        <label for="{{ register_form.matricule.id_for_label }}">Matricule</label>
+        {{ register_form.matricule }}
+
+        <label for="{{ register_form.agence.id_for_label }}">Code Agence</label>
+        {{ register_form.agence }}
+
+        <label for="{{ register_form.email.id_for_label }}">Email</label>
+        {{ register_form.email }}
+
+        <label for="{{ register_form.password1.id_for_label }}">Mot de passe</label>
+        {{ register_form.password1 }}
+
+        <label for="{{ register_form.password2.id_for_label }}">Confirmer mot de passe</label>
+        {{ register_form.password2 }}
+
+        <button type="submit">S'inscrire</button>
+
+        <div class="footer-link">
+          Vous avez déjà un compte ? <a href="#" id="switch-to-login">Se connecter</a>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    const tabLogin = document.getElementById("tab-login");
+    const tabRegister = document.getElementById("tab-register");
+    const loginForm = document.getElementById("login-form");
+    const registerForm = document.getElementById("register-form");
+    const container = document.querySelector('.container');
+
+    function showLogin() {
+      tabLogin.classList.add("active");
+      tabLogin.setAttribute('aria-selected', 'true');
+      tabLogin.tabIndex = 0;
+      tabRegister.classList.remove("active");
+      tabRegister.setAttribute('aria-selected', 'false');
+      tabRegister.tabIndex = -1;
+
+      loginForm.classList.add("active");
+      loginForm.classList.remove("hidden");
+      registerForm.classList.add("hidden");
+      registerForm.classList.remove("active");
+      loginForm.focus();
+      container.scrollTop = 0;
+    }
+
+    function showRegister() {
+      tabRegister.classList.add("active");
+      tabRegister.setAttribute('aria-selected', 'true');
+      tabRegister.tabIndex = 0;
+      tabLogin.classList.remove("active");
+      tabLogin.setAttribute('aria-selected', 'false');
+      tabLogin.tabIndex = -1;
+
+      registerForm.classList.add("active");
+      registerForm.classList.remove("hidden");
+      loginForm.classList.add("hidden");
+      loginForm.classList.remove("active");
+      registerForm.focus();
+      container.scrollTop = 0;
+    }
+
+    document.getElementById("switch-to-register").addEventListener("click", function(e) {
+      e.preventDefault();
+      showRegister();
+    });
+
+    document.getElementById("switch-to-login").addEventListener("click", function(e) {
+      e.preventDefault();
+      showLogin();
+    });
+
+    tabLogin.addEventListener("click", showLogin);
+    tabRegister.addEventListener("click", showRegister);
+
+    showLogin();
+  </script>
+</body>
+</html>

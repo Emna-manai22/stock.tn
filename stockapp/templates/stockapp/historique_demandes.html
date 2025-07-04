@@ -1,39 +1,198 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8" />
-    <title>Historique de mes demandes</title>
+  <meta charset="UTF-8" />
+  <title>Historique de mes demandes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --topnet-blue: #003366;
+      --topnet-blue-light: #1a4d8f;
+      --topnet-orange: #ff6600;
+      --topnet-orange-dark: #cc5200;
+      --white: #ffffff;
+      --gray-bg: #f4f6fa;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--gray-bg);
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: var(--white);
+      padding: 30px;
+      max-width: 1100px;
+      margin: 0 auto;
+      border-radius: var(--radius);
+      box-shadow: 0 20px 35px var(--shadow);
+      animation: fadeIn 0.8s ease forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeIn {
+      from {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--topnet-blue);
+      margin-bottom: 30px;
+      font-weight: 600;
+      font-size: 2.2rem;
+      letter-spacing: 0.5px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-bottom: 30px;
+      font-size: 15px;
+      overflow-x: auto;
+    }
+
+    thead {
+      background: linear-gradient(to right, var(--topnet-blue), var(--topnet-blue-light));
+      color: var(--white);
+    }
+
+    th, td {
+      text-align: left;
+      padding: 14px 18px;
+    }
+
+    th {
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    tbody tr {
+      background: var(--white);
+      border-bottom: 1px solid #ddd;
+      transition: background 0.3s ease;
+    }
+
+    tbody tr:hover {
+      background: var(--topnet-blue-light);
+      color: var(--white);
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f2f5fb;
+    }
+
+    .back-link {
+      display: inline-block;
+      text-decoration: none;
+      background: var(--topnet-orange);
+      color: var(--white);
+      padding: 12px 24px;
+      border-radius: var(--radius);
+      font-weight: 600;
+      transition: background 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .back-link:hover {
+      background: var(--topnet-orange-dark);
+      transform: translateY(-3px);
+    }
+
+    p {
+      text-align: center;
+      color: #555;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+      }
+
+      thead tr {
+        display: none;
+      }
+
+      tbody tr {
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: var(--radius);
+        padding: 10px;
+        background: var(--white);
+      }
+
+      tbody td {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+      }
+
+      tbody td:last-child {
+        border-bottom: none;
+      }
+
+      tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--topnet-blue);
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
     <h1>Historique de mes demandes</h1>
 
-    <a href="{% url 'dashboard_user' %}">← Retour au dashboard</a>
-
     {% if demandes %}
-        <table border="1" cellpadding="5" cellspacing="0">
-            <thead>
-                <tr>
-                    <th>Produit</th>
-                    <th>Quantité demandée</th>
-                    <th>Date de la demande</th>
-                    <th>Statut</th>
-                    <th>Motif de refus</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for demande in demandes %}
-                    <tr>
-                        <td>{{ demande.produit.nom }}</td>
-                        <td>{{ demande.quantite_demandee }}</td>
-                        <td>{{ demande.date_creation|date:"d/m/Y H:i" }}</td>
-                        <td>{{ demande.get_statut_display }}</td>
-                        <td>{{ demande.motif_refus|default:"-" }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+      <table>
+        <thead>
+          <tr>
+            <th>Produit</th>
+            <th>Quantité demandée</th>
+            <th>Date de la demande</th>
+            <th>Statut</th>
+            <th>Motif de refus</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for demande in demandes %}
+            <tr>
+              <td data-label="Produit">{{ demande.produit.nom }}</td>
+              <td data-label="Quantité demandée">{{ demande.quantite_demandee }}</td>
+              <td data-label="Date de la demande">{{ demande.date_creation|date:"d/m/Y H:i" }}</td>
+              <td data-label="Statut">{{ demande.get_statut_display }}</td>
+              <td data-label="Motif de refus">{{ demande.motif_refus|default:"-" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     {% else %}
-        <p>Vous n'avez encore fait aucune demande.</p>
+      <p>Vous n'avez encore fait aucune demande.</p>
     {% endif %}
+
+    <a href="{% url 'dashboard' %}" class="back-link">← Retour au dashboard</a>
+  </div>
 </body>
 </html>

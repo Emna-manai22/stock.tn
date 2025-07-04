@@ -1,37 +1,243 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8" />
-    <title>Gestion Stock</title>
-</head>
-<body>
-    <h1>Gestion du stock</h1>
-    <a href="{% url 'ajouter_produit' %}">Ajouter un nouveau produit</a>
-    <table border="1" cellpadding="8" cellspacing="0">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Catégorie</th>
-                <th>Quantité</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for produit in produits %}
-            <tr>
-                <td>{{ produit.nom }}</td>
-                <td>{{ produit.categorie }}</td>
-                <td>{{ produit.quantite }}</td>
-                <td>
-                    <a href="{% url 'modifier_produit' produit.id %}">Modifier</a> |
-                    <a href="{% url 'supprimer_produit' produit.id %}">Supprimer</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="4">Aucun produit trouvé.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <p><a href="{% url 'dashboard_admin' %}">← Retour au dashboard</a></p>
-</body>
-</html>
+{% extends "stockapp/base.html" %}
+
+{% block title %}Gestion du stock | Topnet{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --topnet-blue: #003366;
+    --topnet-orange: #ff6600;
+    --topnet-light-blue: #eaf1fb;
+    --topnet-light-orange: #fff1e6;
+    --radius: 10px;
+    --transition: 0.3s ease;
+    --font: 'Poppins', sans-serif;
+  }
+
+  /* Fade in page content */
+  .container {
+    animation: fadeInContent 0.8s ease forwards;
+  }
+
+  @keyframes fadeInContent {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  h1 {
+    font-family: var(--font);
+    color: var(--topnet-blue);
+    font-weight: 700;
+    font-size: 2.4rem;
+    margin-bottom: 0;
+    animation: fadeInDown 0.5s ease;
+  }
+
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Bouton Ajouter */
+  .btn-primary {
+    background-color: var(--topnet-orange);
+    border-color: var(--topnet-orange);
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all var(--transition);
+    box-shadow: 0 6px 12px rgba(255, 102, 0, 0.35);
+  }
+
+  .btn-primary:hover,
+  .btn-primary:focus {
+    background-color: #cc5200;
+    border-color: #cc5200;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 10px 20px rgba(204, 82, 0, 0.5);
+  }
+
+  /* Boutons Modifier et Supprimer */
+  .btn-warning {
+    background-color: var(--topnet-light-blue);
+    color: var(--topnet-blue);
+    border: none;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: all var(--transition);
+    box-shadow: 0 2px 6px rgba(0, 51, 102, 0.15);
+  }
+
+  .btn-warning:hover,
+  .btn-warning:focus {
+    background-color: var(--topnet-blue);
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(0, 51, 102, 0.4);
+    transform: scale(1.05);
+  }
+
+  .btn-danger {
+    background-color: var(--topnet-light-orange);
+    color: var(--topnet-orange);
+    border: none;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: all var(--transition);
+    box-shadow: 0 2px 6px rgba(255, 102, 0, 0.15);
+  }
+
+  .btn-danger:hover,
+  .btn-danger:focus {
+    background-color: var(--topnet-orange);
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(255, 102, 0, 0.4);
+    transform: scale(1.05);
+  }
+
+  table {
+    font-family: var(--font);
+    font-size: 1rem;
+    background-color: #fff;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
+    animation: fadeInTable 0.8s ease;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  @keyframes fadeInTable {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  thead {
+    background-color: var(--topnet-blue);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  th, td {
+    padding: 18px 22px;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid #e4e9f0;
+    transition: background-color var(--transition);
+  }
+
+  tbody tr:hover {
+    background-color: var(--topnet-light-orange);
+    cursor: pointer;
+    transform: scale(1.02);
+    box-shadow: 0 8px 15px rgba(255, 102, 0, 0.15);
+    transition: all 0.25s ease;
+  }
+
+  /* Supprimer la bordure sous la dernière ligne */
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .alert-info {
+    font-family: var(--font);
+    background-color: var(--topnet-light-blue);
+    border: none;
+    color: var(--topnet-blue);
+    border-radius: var(--radius);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin-top: 2.5rem;
+    padding: 1.8rem 2rem;
+    text-align: center;
+    letter-spacing: 0.03em;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 1.8rem;
+    }
+
+    th, td {
+      padding: 14px 12px;
+      font-size: 0.9rem;
+    }
+
+    .btn-warning, .btn-danger {
+      padding: 5px 10px;
+      font-size: 0.85rem;
+      border-radius: 22px;
+    }
+
+    .btn-primary {
+      padding: 8px 18px;
+      font-size: 1rem;
+      border-radius: 40px;
+    }
+  }
+</style>
+
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h1>Gestion du stock</h1>
+        <a href="{% url 'ajouter_produit' %}" class="btn btn-primary d-flex align-items-center gap-2">
+            <i class="bi bi-plus-circle fs-5"></i> Ajouter un nouveau produit
+        </a>
+    </div>
+
+    {% if produits %}
+        <div class="table-responsive shadow rounded-4 overflow-hidden">
+            <table class="table table-hover align-middle mb-0" aria-label="Tableau des produits">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Catégorie</th>
+                        <th>Quantité</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for produit in produits %}
+                        <tr>
+                            <td>{{ produit.nom }}</td>
+                            <td>{{ produit.categorie }}</td>
+                            <td>{{ produit.quantite }}</td>
+                            <td>
+                                <a href="{% url 'modifier_produit' produit.id %}" class="btn btn-sm btn-warning me-2" aria-label="Modifier {{ produit.nom }}">
+                                    <i class="bi bi-pencil-square"></i> Modifier
+                                </a>
+                                <a href="{% url 'supprimer_produit' produit.id %}" class="btn btn-sm btn-danger" aria-label="Supprimer {{ produit.nom }}">
+                                    <i class="bi bi-trash-fill"></i> Supprimer
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info mt-4">
+            Aucun produit trouvé.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

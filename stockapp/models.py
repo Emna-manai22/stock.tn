@@ -13,6 +13,7 @@ class Depot(models.Model):
         return f"{self.libelle} ({self.code_depot})"
 
 
+
 # ===== AGENCE =====
 class Agence(models.Model):
     code_agence = models.CharField(max_length=20, unique=True, default='unknown')
@@ -75,7 +76,7 @@ class Produit(models.Model):
         ('informatique', 'Informatique'),
         ('bureautique', 'Bureautique'),
         ('mobilier', 'Mobilier'),
-        ('consommable', 'Consommable'),
+
     ]
 
     nom = models.CharField(max_length=100, unique=True)

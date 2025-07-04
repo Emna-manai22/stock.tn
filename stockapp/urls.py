@@ -3,32 +3,35 @@ from . import views
 
 urlpatterns = [
     # Authentification
-    path('login/', views.CustomLoginView.as_view(), name='login'),
+    path('login/', views.login_register_view, name='login'),
     path('logout/', views.custom_logout, name='logout'),
-    path('register/', views.register_view, name='register'),
 
     # Redirection après login
     path('role-redirect/', views.role_redirect, name='role_redirect'),
 
-    # Dashboards
-    path('dashboard/superuser/', views.dashboard_superuser, name='dashboard_superuser'),
-    path('dashboard/admin/', views.dashboard_admin, name='dashboard_admin'),
-    path('dashboard/user/', views.dashboard_user, name='dashboard_user'),
+    # Dashboard unique
+    path('dashboard/', views.dashboard, name='dashboard'),
 
-    # Dashboard admin - sous pages
-    path('dashboard/admin/utilisateurs/', views.gestion_utilisateurs, name='gestion_utilisateurs'),
-    path('dashboard/admin/transfert-stock/', views.transfert_stock, name='transfert_stock'),
-    path('dashboard/admin/ajouter-produit/', views.ajouter_produit, name='ajouter_produit'),
-    path('dashboard/admin/historique-demandes/', views.historique_demandes, name='historique_demandes'),
+    # Gestion utilisateurs CRUD (Admin uniquement)
+    path('admin/users/', views.user_list, name='admin_user_list'),
+    path('admin/users/create/', views.user_create, name='admin_user_create'),
+    path('admin/users/<int:pk>/edit/', views.user_update, name='admin_user_update'),
+    path('admin/users/<int:pk>/delete/', views.user_delete, name='admin_user_delete'),
 
-    # Gestion stock avec modification et suppression
-    path('dashboard/admin/gestion-stock/', views.gestion_stock, name='gestion_stock'),
-    path('dashboard/admin/gestion-stock/modifier/<int:produit_id>/', views.modifier_produit, name='modifier_produit'),
-    path('dashboard/admin/gestion-stock/supprimer/<int:produit_id>/', views.supprimer_produit, name='supprimer_produit'),
-]
-urlpatterns += [
-    path('dashboard/user/demander-produit/', views.demander_produit, name='demander_produit'),
+    # Pages admin spécifiques
+    path('admin/transfert-stock/', views.transfert_stock, name='transfert_stock'),
+    path('admin/ajouter-produit/', views.ajouter_produit, name='ajouter_produit'),
+    path('admin/historique-demandes/', views.historique_demandes_admin, name='historique_demandes_admin'),
+    path('admin/gestion-stock/', views.gestion_stock, name='gestion_stock'),
+    path('admin/gestion-stock/modifier/<int:produit_id>/', views.modifier_produit, name='modifier_produit'),
+    path('admin/gestion-stock/supprimer/<int:produit_id>/', views.supprimer_produit, name='supprimer_produit'),
+
+    # Pages staff ou superuser
+    path('validation-demandes/', views.validation_demandes, name='validation_demandes'),
+    path('consultation-depot/', views.consultation_depot, name='consultation_depot'),
+
+    # Pages utilisateur
+    path('stock-utilisateur/', views.stock_utilisateur, name='stock_utilisateur'),
+    path('demander-produit/', views.demander_produit, name='demander_produit'),
     path('historique-demandes/', views.historique_demandes, name='historique_demandes'),
-path('admin/historique-demandes/', views.historique_demandes_admin, name='historique_demandes_admin'),
-
 ]

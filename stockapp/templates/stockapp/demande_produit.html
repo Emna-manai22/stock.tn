@@ -1,49 +1,146 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Demander un produit</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            margin: 40px;
+{% extends 'stockapp/base.html' %}
+
+{% block title %}Demander un produit{% endblock %}
+
+{% block content %}
+<style>
+    .fade-in-container {
+        background: #fff;
+        padding: 40px;
+        max-width: 500px;
+        margin: 0 auto;
+        border-radius: 10px;
+        box-shadow: 0 15px 25px rgba(0,0,0,0.1);
+        animation: fadeIn 1s ease forwards;
+        opacity: 0;
+    }
+
+    @keyframes fadeIn {
+        from {
+            transform: translateY(30px);
+            opacity: 0;
         }
-        .container {
-            background: white;
-            padding: 20px;
-            max-width: 500px;
-            margin: auto;
-            border-radius: 8px;
-            box-shadow: 0 0 5px #aaa;
+        to {
+            transform: translateY(0);
+            opacity: 1;
         }
-        label, select, input, button {
-            display: block;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-        button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Demander un produit</h1>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Envoyer la demande</button>
-        </form>
-        <p><a href="{% url 'dashboard_user' %}">← Retour au dashboard</a></p>
-    </div>
-</body>
-</html>
+    }
+
+    .fade-in-container h1 {
+        text-align: center;
+        color: var(--color-primary);
+        margin-bottom: 30px;
+        font-weight: 600;
+    }
+
+    .fade-in-container form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .fade-in-container label {
+        font-weight: 600;
+        color: var(--color-primary);
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+
+    .fade-in-container input,
+    .fade-in-container select,
+    .fade-in-container textarea {
+        padding: 12px 15px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        font-size: 14px;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .fade-in-container input:focus,
+    .fade-in-container select:focus,
+    .fade-in-container textarea:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 5px var(--color-primary);
+        outline: none;
+    }
+
+    .fade-in-container button {
+        background: var(--color-secondary);
+        color: #fff;
+        border: none;
+        padding: 14px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .fade-in-container button:hover {
+        background: #cc5200;
+        transform: translateY(-2px);
+    }
+
+    .fade-in-container .back-link {
+        display: inline-block;
+        margin-top: 25px;
+        text-decoration: none;
+        color: var(--color-primary);
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+
+    .fade-in-container .back-link:hover {
+        color: var(--color-secondary);
+    }
+
+    .errorlist {
+        list-style: none;
+        padding: 10px;
+        margin: 0 0 15px;
+        background: #ffdddd;
+        color: #a70000;
+        border-left: 5px solid var(--color-secondary);
+        border-radius: 10px;
+        font-size: 14px;
+    }
+
+    .alert-message {
+        background: #d4edda;
+        color: #155724;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 10px;
+    }
+</style>
+
+<div class="fade-in-container">
+    <h1>Demander un produit</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert-message">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+        {% for field in form %}
+            <div>
+                {{ field.label_tag }}
+                {{ field }}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+
+        <button type="submit">Envoyer la demande</button>
+    </form>
+
+   
+</div>
+{% endblock %}

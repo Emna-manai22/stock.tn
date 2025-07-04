@@ -1,16 +1,42 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8" />
-    <title>Supprimer produit</title>
-</head>
-<body>
-    <h1>Supprimer produit</h1>
-    <p>Êtes-vous sûr de vouloir supprimer le produit "{{ produit.nom }}" ?</p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit">Oui, supprimer</button>
-        <a href="{% url 'gestion_stock' %}">Annuler</a>
-    </form>
-</body>
-</html>
+{% extends "stockapp/base.html" %}
+
+{% block title %}Supprimer produit | Topnet{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card shadow border-0 rounded-4 animate__animated animate__fadeIn">
+        <div class="card-header d-flex justify-content-between align-items-center"
+             style="background-color: var(--color-primary); color: #fff;">
+            <h1 class="h4 fw-bold mb-0">
+                <i class="bi bi-trash3-fill me-2"></i> Supprimer un produit
+            </h1>
+            <a href="{% url 'gestion_stock' %}"
+               class="btn btn-light d-flex align-items-center gap-2">
+                <i class="bi bi-arrow-left"></i> Retour à la gestion stock
+            </a>
+        </div>
+        <div class="card-body p-4 bg-white">
+            <p class="fs-5 mb-4 text-dark">
+                <i class="bi bi-exclamation-circle-fill text-warning me-2"></i>
+                Vous êtes sur le point de supprimer le produit :
+                <span class="fw-semibold" style="color: var(--color-secondary);">
+                    « {{ produit.nom }} »
+                </span>
+            </p>
+            <div class="d-flex gap-3">
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger d-flex align-items-center gap-2 px-4 py-2">
+                        <i class="bi bi-trash-fill"></i> Confirmer la suppression
+                    </button>
+                </form>
+                <a href="{% url 'gestion_stock' %}" class="btn btn-outline-secondary d-flex align-items-center gap-2 px-4 py-2">
+                    <i class="bi bi-x-lg"></i> Annuler
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+{% endblock %}

@@ -2,9 +2,9 @@
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.core.exceptions import ValidationError
 from .models import CustomUser, Agence, Produit, DemandeStock
 import re
-
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, label="Email")
@@ -53,6 +53,28 @@ class CustomUserCreationForm(UserCreationForm):
         if last_name and not re.match(r'^[A-Za-zÀ-ÿ\s\-]+$', last_name):
             raise forms.ValidationError("Le nom ne doit contenir que des lettres.")
         return last_name
+
+    def clean_password1(self):
+        password = self.cleaned_data.get('password1')
+
+        if password:
+            # Vérifie longueur minimale
+            if len(password) < 8:
+                raise ValidationError("Le mot de passe doit contenir au moins 8 caractères.")
+
+            # Vérifie présence d'au moins une lettre
+            if not re.search(r"[A-Za-z]", password):
+                raise ValidationError("Le mot de passe doit contenir au moins une lettre.")
+
+            # Vérifie présence d'au moins un chiffre
+            if not re.search(r"\d", password):
+                raise ValidationError("Le mot de passe doit contenir au moins un chiffre.")
+
+            # Vérifie présence d'au moins un symbole
+            if not re.search(r"[^A-Za-z0-9]", password):
+                raise ValidationError("Le mot de passe doit contenir au moins un symbole.")
+
+        return password
 
 
 # forms.py

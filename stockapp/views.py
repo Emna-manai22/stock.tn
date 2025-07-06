@@ -31,9 +31,15 @@ class CustomLoginView(LoginView):
 
 # -------- LOGIN / REGISTER VIEW --------
 
+from django.contrib import messages
+
+
+# views.py
+
 def login_register_view(request):
     login_form = AuthenticationForm()
     register_form = CustomUserCreationForm()
+    active_tab = 'login'   # Par défaut, on affiche l'onglet login
 
     if request.method == 'POST':
         if request.POST.get('form_type') == 'login':
@@ -42,16 +48,20 @@ def login_register_view(request):
                 user = login_form.get_user()
                 login(request, user)
                 return redirect('role_redirect')
+            active_tab = 'login'
         elif request.POST.get('form_type') == 'register':
             register_form = CustomUserCreationForm(request.POST)
             if register_form.is_valid():
                 register_form.save()
                 messages.success(request, "Compte créé avec succès. Connectez-vous.")
-                return redirect('login')  # correspond au name='login' dans urls.py
+                return redirect('login')
+            else:
+                active_tab = 'register'
 
     return render(request, 'stockapp/login_register.html', {
         'login_form': login_form,
-        'register_form': register_form
+        'register_form': register_form,
+        'active_tab': active_tab,
     })
 
 

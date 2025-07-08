@@ -6,14 +6,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --topnet-blue: #003366;
+      --topnet-blue-dark: #003366;
       --topnet-blue-light: #1a4d8f;
       --topnet-orange: #ff6600;
       --topnet-orange-dark: #cc5200;
       --white: #ffffff;
-      --gray-bg: #f4f6fa;
+      --gray-bg: #f1f4f9;
+      --gray-border: #d6dbe5;
+      --text-color: #333333;
       --shadow: rgba(0, 0, 0, 0.1);
-      --radius: 10px;
+      --radius: 8px;
     }
 
     * {
@@ -25,24 +27,25 @@
     body {
       font-family: 'Inter', sans-serif;
       background: var(--gray-bg);
-      padding: 40px 20px;
       min-height: 100vh;
+      padding: 40px 20px;
+      color: var(--text-color);
     }
 
     .container {
       background: var(--white);
-      padding: 30px;
       max-width: 1100px;
       margin: 0 auto;
+      padding: 40px;
       border-radius: var(--radius);
       box-shadow: 0 20px 35px var(--shadow);
-      animation: fadeIn 0.8s ease forwards;
+      animation: fadeIn 0.6s ease forwards;
       opacity: 0;
     }
 
     @keyframes fadeIn {
       from {
-        transform: translateY(30px);
+        transform: translateY(20px);
         opacity: 0;
       }
       to {
@@ -53,10 +56,10 @@
 
     h1 {
       text-align: center;
-      color: var(--topnet-blue);
-      margin-bottom: 30px;
+      color: var(--topnet-blue-dark);
+      font-size: 2.5rem;
+      margin-bottom: 40px;
       font-weight: 600;
-      font-size: 2.2rem;
       letter-spacing: 0.5px;
     }
 
@@ -67,10 +70,12 @@
       margin-bottom: 30px;
       font-size: 15px;
       overflow-x: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--gray-border);
     }
 
     thead {
-      background: linear-gradient(to right, var(--topnet-blue), var(--topnet-blue-light));
+      background: linear-gradient(90deg, var(--topnet-blue-dark), var(--topnet-blue-light));
       color: var(--white);
     }
 
@@ -83,12 +88,12 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      font-size: 0.9rem;
     }
 
     tbody tr {
-      background: var(--white);
-      border-bottom: 1px solid #ddd;
-      transition: background 0.3s ease;
+      transition: background 0.3s ease, color 0.3s ease;
+      border-bottom: 1px solid var(--gray-border);
     }
 
     tbody tr:hover {
@@ -97,7 +102,7 @@
     }
 
     tbody tr:nth-child(even) {
-      background: #f2f5fb;
+      background: #f8fafc;
     }
 
     .back-link {
@@ -108,6 +113,7 @@
       padding: 12px 24px;
       border-radius: var(--radius);
       font-weight: 600;
+      font-size: 1rem;
       transition: background 0.3s ease, transform 0.2s ease;
       box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
     }
@@ -119,8 +125,8 @@
 
     p {
       text-align: center;
-      color: #555;
-      font-size: 16px;
+      color: #666;
+      font-size: 1rem;
       margin-top: 20px;
     }
 
@@ -135,18 +141,18 @@
       }
 
       tbody tr {
-        margin-bottom: 15px;
-        border: 1px solid #ddd;
+        margin-bottom: 20px;
         border-radius: var(--radius);
-        padding: 10px;
+        border: 1px solid var(--gray-border);
+        padding: 15px;
         background: var(--white);
       }
 
       tbody td {
         display: flex;
         justify-content: space-between;
-        padding: 10px;
-        border-bottom: 1px solid #eee;
+        padding: 10px 5px;
+        border-bottom: 1px solid var(--gray-border);
       }
 
       tbody td:last-child {
@@ -156,7 +162,7 @@
       tbody td::before {
         content: attr(data-label);
         font-weight: 600;
-        color: var(--topnet-blue);
+        color: var(--topnet-blue-dark);
       }
     }
   </style>

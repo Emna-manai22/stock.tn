@@ -8,6 +8,10 @@
     --gray-light: #f8f9fa;
     --gray-medium: #6c757d;
     --white: #ffffff;
+
+    --alert-warning-bg: #fff3cd;
+    --alert-warning-border: #ffeeba;
+    --alert-warning-text: #856404;
   }
 
   .dashboard-wrapper {
@@ -25,6 +29,24 @@
     text-align: center;
     letter-spacing: 0.05em;
     text-transform: uppercase;
+  }
+
+  .alert-warning {
+    background-color: var(--alert-warning-bg);
+    border: 1px solid var(--alert-warning-border);
+    color: var(--alert-warning-text);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .alert-warning a {
+    text-decoration: none;
+    color: var(--alert-warning-text);
+    font-weight: 700;
+    margin-left: 10px;
   }
 
   .cards-grid {
@@ -123,6 +145,13 @@
 <div class="dashboard-wrapper" role="main" aria-label="Tableau de bord utilisateur">
 
   <h1>Tableau de bord</h1>
+
+  {% if user_role == 'user' %}
+    <div class="alert-warning" role="alert" aria-live="polite">
+      ⚠️ Vous avez des mises à jour sur vos demandes.
+      <a href="{% url 'historique_demandes' %}">Consulter l'historique</a>
+    </div>
+  {% endif %}
 
   <div class="cards-grid" role="list">
     {% if user_role == 'admin' %}

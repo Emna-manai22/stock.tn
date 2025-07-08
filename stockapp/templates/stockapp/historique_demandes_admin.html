@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -84,6 +85,36 @@
       transition: background 0.3s ease, color 0.3s ease;
     }
 
+    .btn {
+      display: inline-block;
+      padding: 8px 14px;
+      font-size: 14px;
+      text-decoration: none;
+      border-radius: var(--radius);
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-accept {
+      background: #28a745;
+      color: var(--white);
+    }
+
+    .btn-accept:hover {
+      background: #218838;
+    }
+
+    .btn-refuse {
+      background: #dc3545;
+      color: var(--white);
+    }
+
+    .btn-refuse:hover {
+      background: #c82333;
+    }
+
     .back-link {
       display: inline-block;
       text-decoration: none;
@@ -147,6 +178,16 @@
   <div class="container">
     <h1>Historique des demandes (Admin)</h1>
 
+    {% if messages %}
+      <ul>
+        {% for message in messages %}
+          <li style="color: {% if message.tags == 'error' %}red{% else %}green{% endif %}; margin-bottom: 10px;">
+            {{ message }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
     {% if demandes %}
       <table>
         <thead>
@@ -157,6 +198,7 @@
             <th>Date de la demande</th>
             <th>Statut</th>
             <th>Motif de refus</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -168,6 +210,17 @@
               <td data-label="Date">{{ demande.date_creation|date:"d/m/Y H:i" }}</td>
               <td data-label="Statut">{{ demande.get_statut_display }}</td>
               <td data-label="Motif de refus">{{ demande.motif_refus|default:"-" }}</td>
+              <td data-label="Actions">
+                {% if demande.statut == "en_attente" %}
+                  <form method="post" action="{% url 'accepter_demande' demande.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-accept">Accepter</button>
+                  </form>
+                  <a href="{% url 'refuser_demande' demande.id %}" class="btn btn-refuse">Refuser</a>
+                {% else %}
+                  -
+                {% endif %}
+              </td>
             </tr>
           {% endfor %}
         </tbody>

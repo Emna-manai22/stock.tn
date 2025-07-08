@@ -74,24 +74,52 @@ def role_redirect(request):
 
 
 # -------- DASHBOARD UNIQUE --------
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.shortcuts import render
+from stockapp.models import DemandeStock
 
 @login_required
 def dashboard(request):
     user = request.user
 
-    # Superuser → admin
+    # Déterminer le rôle
     if user.is_superuser:
         user_role = 'admin'
-    # Staff mais pas superuser
+        demandes_en_attente = DemandeStock.objects.filter(statut='en_attente').order_by('-date_creation')
     elif user.is_staff:
         user_role = 'staff'
+        demandes_en_attente = DemandeStock.objects.filter(statut='en_attente', agence=user.agence).order_by('-date_creation')
     else:
         user_role = 'user'
+        demandes_en_attente = None
+
+        # Gestion des notifications utilisateur
+        demandes_user = DemandeStock.objects.filter(utilisateur=user)
+        # Récupérer les demandes déjà vues dans la session
+        vues_ids = request.session.get('demandes_lues', [])
+
+        for demande in demandes_user:
+            if demande.id in vues_ids:
+                continue
+
+            if demande.statut == 'acceptee':
+                messages.success(request, f"✅ Votre demande #{demande.id} a été acceptée.")
+                vues_ids.append(demande.id)
+            elif demande.statut == 'refusee':
+                motif = demande.motif_refus or "Aucun motif précisé."
+                messages.error(request, f"❌ Votre demande #{demande.id} a été refusée. Motif : {motif}")
+                vues_ids.append(demande.id)
+
+        # Sauvegarder la liste mise à jour en session
+        request.session['demandes_lues'] = vues_ids
 
     context = {
-        'user_role': user_role
+        'user_role': user_role,
+        'demandes_en_attente': demandes_en_attente,
     }
     return render(request, 'stockapp/dashboard.html', context)
+
 
 
 # -------- PRODUIT --------
@@ -124,7 +152,6 @@ def demander_produit(request):
             demande = form.save(commit=False)
             produit = demande.produit
 
-            # Décrémenter le stock
             produit.quantite -= demande.quantite_demandee
             produit.save()
 
@@ -132,12 +159,19 @@ def demander_produit(request):
             demande.agence = request.user.agence
             demande.save()
 
+            # Ajouter une notification en session pour l'admin (superuser)
+            # Ici, tu peux stocker une liste de notifications dans la session
+            notifications = request.session.get('notifications', [])
+            notifications.append(f"Nouvelle demande de {request.user.username} pour {produit.nom} (Qté: {demande.quantite_demandee})")
+            request.session['notifications'] = notifications
+
             messages.success(request, "Votre demande a été enregistrée avec succès.")
             return redirect('dashboard')
     else:
         form = DemandeStockForm()
 
     return render(request, 'stockapp/demande_produit.html', {'form': form})
+
 
 
 @login_required
@@ -321,3 +355,35 @@ def user_create(request):
         'title': 'Ajouter un utilisateur'
     }
     return render(request, 'stockapp/user_create.html', context)
+
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib import messages
+from .models import DemandeStock
+
+@user_passes_test(lambda u: u.is_superuser or u.is_staff)
+@require_POST
+def accepter_demande(request, demande_id):
+    demande = get_object_or_404(DemandeStock, id=demande_id)
+    if demande.statut == "en_attente":
+        demande.statut = "acceptee"
+        demande.save()
+        messages.success(request, f"Demande #{demande_id} acceptée.")
+    return redirect('historique_demandes_admin')
+
+@user_passes_test(lambda u: u.is_superuser or u.is_staff)
+def refuser_demande(request, demande_id):
+    demande = get_object_or_404(DemandeStock, id=demande_id)
+    if request.method == "POST":
+        motif = request.POST.get("motif_refus", "").strip()
+        if motif:
+            demande.statut = "refusee"
+            demande.motif_refus = motif
+            demande.save()
+            messages.success(request, f"Demande #{demande_id} refusée.")
+            return redirect('historique_demandes_admin')
+        else:
+            messages.error(request, "Le motif de refus est requis.")
+    return render(request, 'stockapp/refus_formulaire.html', {'demande': demande})
+

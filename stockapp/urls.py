@@ -26,6 +26,10 @@ urlpatterns = [
     path('admin/gestion-stock/modifier/<int:produit_id>/', views.modifier_produit, name='modifier_produit'),
     path('admin/gestion-stock/supprimer/<int:produit_id>/', views.supprimer_produit, name='supprimer_produit'),
 
+    # Validation ou refus de demande (Admin)
+    path('admin/historique-demandes/accepter/<int:demande_id>/', views.accepter_demande, name='accepter_demande'),
+    path('admin/historique-demandes/refuser/<int:demande_id>/', views.refuser_demande, name='refuser_demande'),
+
     # Pages staff ou superuser
     path('validation-demandes/', views.validation_demandes, name='validation_demandes'),
     path('consultation-depot/', views.consultation_depot, name='consultation_depot'),

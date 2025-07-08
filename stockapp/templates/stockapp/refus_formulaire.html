@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Refuser la demande</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <style>
+    body {
+      background: #f4f6fa;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .card {
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 15px 25px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+    }
+    h1 {
+      color: #003366;
+      margin-bottom: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      font-size: 15px;
+      resize: vertical;
+      margin-bottom: 20px;
+    }
+    .btn {
+      background: #ff6600;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s ease;
+    }
+    .btn:hover {
+      background: #cc5200;
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 15px;
+      color: #003366;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Refuser la demande #{{ demande.id }}</h1>
+    <p>Produit : <strong>{{ demande.produit.nom }}</strong></p>
+    <p>Quantité demandée : <strong>{{ demande.quantite_demandee }}</strong></p>
+    <form method="post">
+      {% csrf_token %}
+      <textarea name="motif_refus" placeholder="Saisissez le motif de refus..." required></textarea>
+      <button type="submit" class="btn">Confirmer le refus</button>
+    </form>
+    <a href="{% url 'historique_demandes_admin' %}" class="back-link">← Annuler</a>
+  </div>
+</body>
+</html>

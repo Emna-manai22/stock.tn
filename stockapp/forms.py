@@ -1,10 +1,14 @@
 # stockapp/forms.py
 
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from .models import CustomUser, Agence, Produit, DemandeStock
 import re
+
+# ==========================
+# FORMULAIRE UTILISATEUR
+# ==========================
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, label="Email")
@@ -58,28 +62,37 @@ class CustomUserCreationForm(UserCreationForm):
         password = self.cleaned_data.get('password1')
 
         if password:
-            # Vérifie longueur minimale
             if len(password) < 8:
                 raise ValidationError("Le mot de passe doit contenir au moins 8 caractères.")
-
-            # Vérifie présence d'au moins une lettre
             if not re.search(r"[A-Za-z]", password):
                 raise ValidationError("Le mot de passe doit contenir au moins une lettre.")
-
-            # Vérifie présence d'au moins un chiffre
             if not re.search(r"\d", password):
                 raise ValidationError("Le mot de passe doit contenir au moins un chiffre.")
-
-            # Vérifie présence d'au moins un symbole
             if not re.search(r"[^A-Za-z0-9]", password):
                 raise ValidationError("Le mot de passe doit contenir au moins un symbole.")
 
         return password
 
+# ==========================
+# FORMULAIRE PRODUIT
+# ==========================
 
-# forms.py
+from django import forms
+from .models import Produit
+from django import forms
+from .models import Produit
+from django import forms
+from .models import Produit
 
 class ProduitForm(forms.ModelForm):
+    quantite_initiale = forms.IntegerField(
+        required=False,
+        min_value=0,
+        label='Quantité initiale au siège',
+        help_text='Laisse vide si aucune quantité initiale.',
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
+
     class Meta:
         model = Produit
         fields = ['nom', 'categorie', 'quantite']
@@ -94,13 +107,24 @@ class ProduitForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if user and user.is_superuser:
+            # Superuser ne touche à aucun champ de quantité
             self.fields['quantite'].widget.attrs['readonly'] = True
             self.fields['quantite'].required = False
-            self.fields['quantite'].widget.attrs['placeholder'] = "Quantité non modifiable pour admin"
+            self.fields['quantite'].widget.attrs['placeholder'] = "Non modifiable pour superuser"
 
+            self.fields['quantite_initiale'].widget.attrs['readonly'] = True
+            self.fields['quantite_initiale'].required = False
+            self.fields['quantite_initiale'].widget.attrs['placeholder'] = "Non modifiable pour superuser"
 
-from django import forms
-from .models import DemandeStock, Produit
+        elif user and user.is_staff:
+            # Staff ne modifie pas quantite du modèle Produit directement
+            self.fields['quantite'].widget.attrs['readonly'] = True
+            self.fields['quantite'].required = False
+            self.fields['quantite'].widget.attrs['placeholder'] = "Quantité calculée automatiquement"
+
+# ==========================
+# FORMULAIRE DEMANDE STOCK
+# ==========================
 
 class DemandeStockForm(forms.ModelForm):
     class Meta:
@@ -122,3 +146,4 @@ class DemandeStockForm(forms.ModelForm):
                     'quantite_demandee',
                     f"La quantité demandée ({quantite_demandee}) dépasse le stock disponible ({produit.quantite})."
                 )
+        return cleaned_data

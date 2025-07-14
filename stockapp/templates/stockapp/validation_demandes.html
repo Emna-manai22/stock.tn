@@ -1,0 +1,170 @@
+{% extends "stockapp/base.html" %}
+
+{% block title %}Validation des demandes{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 960px;">
+
+  <h1 class="mb-5 d-flex align-items-center gap-3" style="color: #1a3d7c; font-weight: 700; font-size: 2.5rem;">
+    <i class="bi bi-check-square-fill" style="color: #ff6600; animation: pulse 2.5s infinite ease-in-out;"></i>
+    Validation des demandes
+  </h1>
+
+  {% if demandes_en_attente %}
+  <p class="text-muted fs-5 mb-4">
+    <span>Il y a</span>
+    <span class="badge bg-warning text-dark px-3 py-2 fs-6 shadow-sm fw-semibold" style="animation: pulseBadge 2.2s infinite ease-in-out;">
+      {{ demandes_en_attente|length }}
+    </span>
+    <span>demande(s) en attente de validation.</span>
+  </p>
+
+  <div class="table-responsive shadow-sm rounded-4 overflow-auto" style="border: 1px solid #e3e6f0;">
+    <table class="table mb-0 align-middle text-center" style="min-width: 700px;">
+      <thead class="bg-primary text-white" style="font-weight: 600; font-size: 1rem;">
+        <tr>
+          <th class="py-3" style="width: 5%;">#</th>
+          <th class="py-3" style="width: 20%;">Utilisateur</th>
+          <th class="py-3" style="width: 25%;">Produit</th>
+          <th class="py-3" style="width: 15%;">Quantité</th>
+          <th class="py-3" style="width: 20%;">Date de création</th>
+          <th class="py-3" style="width: 15%;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for demande in demandes_en_attente %}
+        <tr class="bg-white" style="transition: box-shadow 0.3s ease, transform 0.3s ease;">
+          <td class="py-3 fw-semibold">{{ demande.id }}</td>
+          <td class="py-3">{{ demande.utilisateur.username }}</td>
+          <td class="py-3">{{ demande.produit.nom }}</td>
+          <td class="py-3">{{ demande.quantite_demandee }}</td>
+          <td class="py-3">{{ demande.date_creation|date:"d/m/Y H:i" }}</td>
+          <td class="py-3">
+            <form method="post" action="{% url 'accepter_demande' demande.id %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-success btn-sm fw-semibold px-3 py-2"
+                      style="transition: all 0.25s ease;">
+                <i class="bi bi-check-lg me-1"></i> Accepter
+              </button>
+            </form>
+
+            <button type="button"
+                    class="btn btn-outline-danger btn-sm fw-semibold px-3 py-2 ms-2"
+                    data-bs-toggle="modal"
+                    data-bs-target="#refusModal"
+                    data-demande-id="{{ demande.id }}"
+                    data-produit-nom="{{ demande.produit.nom }}"
+                    data-quantite="{{ demande.quantite_demandee }}"
+                    style="transition: all 0.25s ease;">
+              <i class="bi bi-x-lg me-1"></i> Refuser
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info mt-4 d-flex align-items-center gap-3 fs-5 shadow-sm" role="alert" style="border-left: 4px solid #1a3d7c;">
+    <i class="bi bi-info-circle-fill fs-3 text-primary"></i>
+    <span>Aucune demande en attente pour le moment.</span>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Modal Refus -->
+<div class="modal fade" id="refusModal" tabindex="-1" aria-labelledby="refusModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content rounded-4 shadow-lg border-0">
+      <form method="post" id="refusForm" class="p-4">
+        {% csrf_token %}
+        <div class="modal-header bg-warning rounded-top">
+          <h5 class="modal-title fw-bold text-dark" id="refusModalLabel">
+            <i class="bi bi-x-circle-fill me-2"></i> Refuser la demande
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body fs-5">
+          <input type="hidden" name="demande_id" id="modal-demande-id" />
+          <p><strong>Produit :</strong> <span id="modal-produit-nom" class="text-primary fw-semibold"></span></p>
+          <p><strong>Quantité demandée :</strong> <span id="modal-quantite" class="text-primary fw-semibold"></span></p>
+          <div class="mb-3">
+            <label for="motifRefus" class="form-label fw-semibold">Motif du refus</label>
+            <textarea name="motif_refus" id="motifRefus" class="form-control shadow-sm" rows="4" required
+                      placeholder="Entrez le motif du refus..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-outline-secondary fw-semibold px-4 py-2" data-bs-dismiss="modal" style="border-radius: 0.4rem;">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-warning fw-bold px-4 py-2" style="color:#1a3d7c; border-radius: 0.4rem;">
+            Confirmer le refus
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  var refusModal = document.getElementById('refusModal');
+  refusModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    var demandeId = button.getAttribute('data-demande-id');
+    var produitNom = button.getAttribute('data-produit-nom');
+    var quantite = button.getAttribute('data-quantite');
+
+    document.getElementById('modal-demande-id').value = demandeId;
+    document.getElementById('modal-produit-nom').textContent = produitNom;
+    document.getElementById('modal-quantite').textContent = quantite;
+
+    var form = document.getElementById('refusForm');
+    var actionUrl = "{% url 'refuser_demande' 0 %}".replace('/0/', '/' + demandeId + '/');
+    form.setAttribute('action', actionUrl);
+  });
+</script>
+
+<style>
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+  }
+
+  @keyframes pulseBadge {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+  }
+
+  tbody tr:hover {
+    box-shadow: 0 8px 20px rgba(26, 61, 124, 0.15);
+    transform: translateY(-3px);
+    cursor: pointer;
+  }
+
+  button.btn-outline-success:hover {
+    background-color: #1a3d7c;
+    color: #fff;
+    border-color: #1a3d7c;
+  }
+
+  button.btn-outline-danger:hover {
+    background-color: #ff6600;
+    color: #fff;
+    border-color: #ff6600;
+  }
+
+  .table-responsive::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .table-responsive::-webkit-scrollbar-track {
+    background: #f7f9fc;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb {
+    background-color: #1a3d7c;
+    border-radius: 20px;
+  }
+</style>
+{% endblock %}

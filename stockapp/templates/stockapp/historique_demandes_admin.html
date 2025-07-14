@@ -1,141 +1,110 @@
 {% load static %}
-<!DOCTYPE html>
+
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Historique des demandes (Admin)</title>
+  <meta charset="UTF-8">
+  <title>Historique des demandes - Admin</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
   <style>
     :root {
       --topnet-blue: #003366;
       --topnet-blue-light: #1a4d8f;
       --topnet-orange: #ff6600;
-      --white: #ffffff;
-      --gray-bg: #f4f6fa;
-      --shadow: rgba(0, 0, 0, 0.1);
+      --light-bg: #f8f9fa;
       --radius: 10px;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
 
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--gray-bg);
-      padding: 40px 20px;
-      min-height: 100vh;
+      background-color: var(--light-bg);
+      padding: 30px;
     }
 
     .container {
-      background: var(--white);
+      background: white;
       padding: 30px;
-      max-width: 1200px;
-      margin: 0 auto;
       border-radius: var(--radius);
-      box-shadow: 0 15px 25px var(--shadow);
-      animation: fadeIn 1s ease forwards;
-      opacity: 0;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+      animation: fadeIn 0.6s ease-in-out;
     }
 
     @keyframes fadeIn {
-      from {
-        transform: translateY(30px);
+      0% {
         opacity: 0;
+        transform: translateY(20px);
       }
-      to {
-        transform: translateY(0);
+      100% {
         opacity: 1;
+        transform: translateY(0);
       }
     }
 
     h1 {
       text-align: center;
       color: var(--topnet-blue);
-      margin-bottom: 30px;
       font-weight: 600;
+      margin-bottom: 30px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 20px;
-      font-size: 15px;
+      margin-top: 20px;
     }
 
     thead {
       background: var(--topnet-blue);
-      color: var(--white);
+      color: white;
     }
 
     th, td {
-      text-align: left;
       padding: 12px 15px;
+      vertical-align: middle;
     }
 
     tbody tr:nth-child(even) {
-      background: #f2f5fb;
+      background-color: #f1f5f9;
     }
 
-    tbody tr:hover {
-      background: var(--topnet-orange);
-      color: var(--white);
-      transition: background 0.3s ease, color 0.3s ease;
+    .badge {
+      font-size: 0.9rem;
+      padding: 0.5em 0.7em;
+      border-radius: 0.4rem;
     }
 
-    .btn {
+    .badge-en-attente {
+      background-color: #ffc107;
+      color: #000;
+    }
+
+    .badge-acceptee {
+      background-color: #28a745;
+    }
+
+    .badge-refusee {
+      background-color: #dc3545;
+    }
+
+    .badge-traitee {
+      background-color: #0d6efd;
+    }
+
+    .back-btn {
       display: inline-block;
-      padding: 8px 14px;
-      font-size: 14px;
-      text-decoration: none;
-      border-radius: var(--radius);
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn-accept {
-      background: #28a745;
-      color: var(--white);
-    }
-
-    .btn-accept:hover {
-      background: #218838;
-    }
-
-    .btn-refuse {
-      background: #dc3545;
-      color: var(--white);
-    }
-
-    .btn-refuse:hover {
-      background: #c82333;
-    }
-
-    .back-link {
-      display: inline-block;
-      text-decoration: none;
-      background: var(--topnet-orange);
-      color: var(--white);
+      margin-top: 25px;
       padding: 12px 20px;
-      border-radius: var(--radius);
+      background: var(--topnet-orange);
+      color: white;
       font-weight: 600;
-      transition: background 0.3s ease, transform 0.2s ease;
+      border-radius: var(--radius);
+      text-decoration: none;
+      transition: background 0.3s ease;
     }
 
-    .back-link:hover {
+    .back-btn:hover {
       background: #cc5200;
-      transform: translateY(-2px);
-    }
-
-    p {
-      text-align: center;
-      color: #666;
-      font-size: 16px;
-      margin-top: 20px;
     }
 
     @media (max-width: 768px) {
@@ -149,9 +118,9 @@
 
       tbody tr {
         margin-bottom: 15px;
-        background: var(--white);
-        border: 1px solid #ddd;
+        background: #fff;
         border-radius: var(--radius);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         padding: 10px;
       }
 
@@ -168,68 +137,78 @@
 
       tbody td::before {
         content: attr(data-label);
-        font-weight: 600;
+        font-weight: bold;
         color: var(--topnet-blue);
       }
     }
   </style>
 </head>
 <body>
+
   <div class="container">
-    <h1>Historique des demandes (Admin)</h1>
+    <h1><i class="bi bi-clock-history me-2"></i>Historique des demandes</h1>
 
     {% if messages %}
-      <ul>
-        {% for message in messages %}
-          <li style="color: {% if message.tags == 'error' %}red{% else %}green{% endif %}; margin-bottom: 10px;">
-            {{ message }}
-          </li>
-        {% endfor %}
-      </ul>
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+        </div>
+      {% endfor %}
     {% endif %}
 
     {% if demandes %}
-      <table>
-        <thead>
-          <tr>
-            <th>Utilisateur</th>
-            <th>Produit</th>
-            <th>Quantité</th>
-            <th>Date de la demande</th>
-            <th>Statut</th>
-            <th>Motif de refus</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for demande in demandes %}
+      <div class="table-responsive">
+        <table class="table align-middle table-bordered">
+          <thead>
             <tr>
-              <td data-label="Utilisateur">{{ demande.utilisateur.username }}</td>
-              <td data-label="Produit">{{ demande.produit.nom }}</td>
-              <td data-label="Quantité">{{ demande.quantite_demandee }}</td>
-              <td data-label="Date">{{ demande.date_creation|date:"d/m/Y H:i" }}</td>
-              <td data-label="Statut">{{ demande.get_statut_display }}</td>
-              <td data-label="Motif de refus">{{ demande.motif_refus|default:"-" }}</td>
-              <td data-label="Actions">
-                {% if demande.statut == "en_attente" %}
-                  <form method="post" action="{% url 'accepter_demande' demande.id %}" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-accept">Accepter</button>
-                  </form>
-                  <a href="{% url 'refuser_demande' demande.id %}" class="btn btn-refuse">Refuser</a>
-                {% else %}
-                  -
-                {% endif %}
-              </td>
+              <th>Utilisateur</th>
+              <th>Produit</th>
+              <th>Quantité</th>
+              <th>Date</th>
+              <th>Statut</th>
+              <th>Motif de refus</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {% for demande in demandes %}
+              <tr>
+                <td data-label="Utilisateur">{{ demande.utilisateur.username }}</td>
+                <td data-label="Produit">{{ demande.produit.nom }}</td>
+                <td data-label="Quantité">{{ demande.quantite_demandee }}</td>
+                <td data-label="Date">{{ demande.date_creation|date:"d/m/Y H:i" }}</td>
+                <td data-label="Statut">
+                  {% if demande.statut == "acceptee" %}
+                    <span class="badge badge-acceptee">Acceptée</span>
+                  {% elif demande.statut == "refusee" %}
+                    <span class="badge badge-refusee">Refusée</span>
+                  {% elif demande.statut == "en_attente" %}
+                    <span class="badge badge-en-attente">En attente</span>
+                  {% else %}
+                    <span class="badge badge-traitee">Traitée</span>
+                  {% endif %}
+                </td>
+                <td data-label="Motif">
+                  {% if demande.statut == "refusee" %}
+                    {{ demande.motif_refus }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     {% else %}
-      <p>Aucune demande enregistrée.</p>
+      <p class="text-muted text-center">Aucune demande trouvée.</p>
     {% endif %}
 
-    <a href="{% url 'dashboard' %}" class="back-link">← Retour au dashboard</a>
+    <div class="text-center">
+      <a href="{% url 'dashboard' %}" class="back-btn">← Retour au tableau de bord</a>
+    </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

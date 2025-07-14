@@ -1,230 +1,256 @@
 {% extends "stockapp/base.html" %}
 
 {% block content %}
+
 <style>
   :root {
     --blue-dark: #1a3d7c;
     --orange: #ff6600;
-    --gray-light: #f8f9fa;
     --gray-medium: #6c757d;
     --white: #ffffff;
-
-    --alert-warning-bg: #fff3cd;
-    --alert-warning-border: #ffeeba;
-    --alert-warning-text: #856404;
+    --alert-bg: #fff3cd;
+    --alert-border: #ffeeba;
+    --alert-text: #856404;
   }
 
   .dashboard-wrapper {
-    max-width: 900px;
-    margin: 50px auto 80px;
-    padding: 0 15px;
+    max-width: 1100px;
+    margin: 50px auto;
+    padding: 20px;
     font-family: 'Poppins', sans-serif;
   }
 
   h1 {
     color: var(--blue-dark);
     font-weight: 700;
-    font-size: 2.8rem;
-    margin-bottom: 40px;
+    font-size: 2.5rem;
     text-align: center;
-    letter-spacing: 0.05em;
+    margin-bottom: 40px;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .alert-warning {
-    background-color: var(--alert-warning-bg);
-    border: 1px solid var(--alert-warning-border);
-    color: var(--alert-warning-text);
-    padding: 15px;
+    background-color: var(--alert-bg);
+    border: 1px solid var(--alert-border);
+    color: var(--alert-text);
+    padding: 15px 20px;
     border-radius: 8px;
     margin-bottom: 30px;
     font-weight: 600;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.1rem;
   }
 
   .alert-warning a {
     text-decoration: none;
-    color: var(--alert-warning-text);
+    color: var(--alert-text);
     font-weight: 700;
-    margin-left: 10px;
+    padding: 6px 12px;
+    border: 1px solid var(--alert-border);
+    border-radius: 20px;
+    background: var(--white);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .alert-warning a:hover,
+  .alert-warning a:focus {
+    background: var(--alert-text);
+    color: var(--white);
+    outline: none;
   }
 
   .cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 25px;
   }
 
   .card {
     background: var(--white);
-    border-radius: 15px;
-    padding: 30px 20px;
-    box-shadow: 0 8px 24px rgba(26, 61, 124, 0.15);
-    cursor: pointer;
-    transition: transform 0.3s cubic-bezier(.4,0,.2,1), box-shadow 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    border-radius: 12px;
+    padding: 25px 15px;
     text-align: center;
+    text-decoration: none;
     color: var(--blue-dark);
-    user-select: none;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.07);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
-    overflow: hidden;
   }
 
-  .card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 160%;
-    height: 160%;
-    background: var(--orange);
-    opacity: 0.05;
-    transform: rotate(45deg);
-    transition: opacity 0.4s ease;
-    border-radius: 50%;
-  }
-
-  .card:hover::before {
-    opacity: 0.15;
-  }
-
-  .card:hover {
-    transform: translateY(-12px);
-    box-shadow: 0 16px 40px rgba(255, 102, 0, 0.3);
+  .card:hover,
+  .card:focus {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    outline: none;
   }
 
   .card-icon {
-    font-size: 50px;
-    margin-bottom: 20px;
+    font-size: 2.5rem;
     color: var(--orange);
+    margin-bottom: 15px;
     transition: color 0.3s ease;
   }
 
-  .card:hover .card-icon {
+  .card:hover .card-icon,
+  .card:focus .card-icon {
     color: var(--blue-dark);
   }
 
   .card-title {
-    font-size: 1.25rem;
     font-weight: 700;
-    margin-bottom: 10px;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
   }
 
   .card-desc {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: var(--gray-medium);
   }
 
   .logout-button {
     display: block;
-    max-width: 200px;
+    width: fit-content;
     margin: 50px auto 0;
-    padding: 12px 0;
+    padding: 14px 28px;
     background: var(--orange);
     color: var(--white);
     font-weight: 700;
-    text-align: center;
     border-radius: 40px;
     text-transform: uppercase;
-    font-size: 1rem;
     letter-spacing: 0.1em;
     box-shadow: 0 6px 20px rgba(255, 102, 0, 0.35);
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    user-select: none;
     text-decoration: none;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
   }
 
-  .logout-button:hover {
+  .logout-button:hover,
+  .logout-button:focus {
     background: var(--blue-dark);
-    box-shadow: 0 8px 24px rgba(26, 61, 124, 0.6);
+    box-shadow: 0 8px 24px rgba(26, 61, 124, 0.5);
+    outline: none;
+  }
+
+  /* Lien transfert stock dans dashboard */
+  .dashboard-transfer-link {
+    display: inline-block;
+    margin: 20px auto 40px;
+    padding: 12px 20px;
+    background-color: var(--orange);
+    color: var(--white);
+    font-weight: 700;
+    border-radius: 30px;
+    text-decoration: none;
+    font-size: 1.1rem;
+    box-shadow: 0 6px 15px rgba(255, 102, 0, 0.35);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .dashboard-transfer-link:hover,
+  .dashboard-transfer-link:focus {
+    background-color: var(--blue-dark);
+    box-shadow: 0 8px 24px rgba(26, 61, 124, 0.5);
+    outline: none;
   }
 </style>
 
-<div class="dashboard-wrapper" role="main" aria-label="Tableau de bord utilisateur">
-
+<div class="dashboard-wrapper" role="main" aria-label="Tableau de bord">
   <h1>Tableau de bord</h1>
 
-  {% if user_role == 'user' %}
+  {% if user_role == 'user' and notif_count > 0 %}
     <div class="alert-warning" role="alert" aria-live="polite">
-      ⚠️ Vous avez des mises à jour sur vos demandes.
-      <a href="{% url 'historique_demandes' %}">Consulter l'historique</a>
+      <span class="bi bi-bell-fill" style="font-size: 1.4rem;"></span>
+      Vous avez {{ notif_count }} mise(s) à jour sur vos demandes.
+      <a href="{% url 'historique_demandes' %}">Voir l’historique</a>
+    </div>
+  {% endif %}
+
+  {% if user_role == 'staff' and demandes_en_attente %}
+    <div class="alert-warning" role="alert" aria-live="polite">
+      <span class="bi bi-bell-fill" style="font-size: 1.4rem;"></span>
+      {{ demandes_en_attente|length }} demande(s) en attente de validation.
+      <a href="{% url 'validation_demandes' %}">Voir les demandes</a>
+    </div>
+  {% endif %}
+
+  {% if user.is_staff or user.is_superuser %}
+    <a href="{% url 'transfert_stock' %}" class="dashboard-transfer-link" aria-label="Accéder à la page de transfert de stock">
+      <i class="bi bi-arrow-left-right"></i> Transfert Stock
+    </a>
+  {% endif %}
+
+  {% if user_role == 'admin' and demandes_en_attente %}
+    <div class="alert-warning" role="alert" aria-live="polite">
+      <span class="bi bi-bell-fill" style="font-size: 1.4rem;"></span>
+      {{ demandes_en_attente|length }} demande(s) en attente dans le système.
+      <a href="{% url 'historique_demandes_admin' %}">Voir l’historique</a>
     </div>
   {% endif %}
 
   <div class="cards-grid" role="list">
     {% if user_role == 'admin' %}
-      <a href="{% url 'admin_user_list' %}" class="card" role="listitem">
-        <div class="card-icon">👥</div>
-        <div class="card-title">Gestion utilisateurs</div>
-        <div class="card-desc">Créer, modifier et supprimer les comptes utilisateurs.</div>
+      <a href="{% url 'admin_user_list' %}" class="card" role="listitem" tabindex="0">
+        <div class="card-icon bi bi-people-fill"></div>
+        <div class="card-title">Utilisateurs</div>
+        <div class="card-desc">Gérer les utilisateurs.</div>
       </a>
-
-      <a href="{% url 'transfert_stock' %}" class="card" role="listitem">
-        <div class="card-icon">🔄</div>
+      <a href="{% url 'transfert_stock' %}" class="card" role="listitem" tabindex="0">
+        <div class="card-icon bi bi-arrow-left-right"></div>
         <div class="card-title">Transfert de stock</div>
-        <div class="card-desc">Gérer les transferts entre dépôts.</div>
+        <div class="card-desc">Gérer les mouvements de stock.</div>
       </a>
-
-      <a href="{% url 'ajouter_produit' %}" class="card" role="listitem">
-        <div class="card-icon">➕</div>
-        <div class="card-title">Ajouter un produit</div>
-        <div class="card-desc">Ajouter de nouveaux produits au catalogue.</div>
+      <a href="{% url 'ajouter_produit' %}" class="card" role="listitem" tabindex="0">
+        <div class="card-icon bi bi-plus-square"></div>
+        <div class="card-title">Ajouter produit</div>
+        <div class="card-desc">Ajouter des articles au stock.</div>
       </a>
-
-      <a href="{% url 'gestion_stock' %}" class="card" role="listitem">
-        <div class="card-icon">📦</div>
+      <a href="{% url 'gestion_stock' %}" class="card" role="listitem" tabindex="0">
+        <div class="card-icon bi bi-box-seam"></div>
         <div class="card-title">Gérer le stock</div>
-        <div class="card-desc">Consulter et modifier les stocks disponibles.</div>
+        <div class="card-desc">Consulter et ajuster le stock.</div>
       </a>
-
-      <a href="{% url 'historique_demandes_admin' %}" class="card" role="listitem">
-        <div class="card-icon">🕒</div>
-        <div class="card-title">Historique des demandes</div>
-        <div class="card-desc">Suivre toutes les demandes effectuées.</div>
-      </a>
-
-    {% elif user_role == 'staff' %}
-      <a href="{% url 'validation_demandes' %}" class="card" role="listitem">
-        <div class="card-icon">✅</div>
-        <div class="card-title">Validation des demandes</div>
-        <div class="card-desc">Valider ou rejeter les demandes.</div>
-      </a>
-
-      <a href="{% url 'consultation_depot' %}" class="card" role="listitem">
-        <div class="card-icon">🏬</div>
-        <div class="card-title">Consultation dépôt</div>
-        <div class="card-desc">Consulter le dépôt principal.</div>
-      </a>
-
-      <a href="{% url 'ajouter_produit' %}" class="card" role="listitem">
-        <div class="card-icon">➕</div>
-        <div class="card-title">Ajouter un produit</div>
-        <div class="card-desc">Ajouter de nouveaux produits au catalogue.</div>
-      </a>
-
-      <a href="{% url 'historique_demandes_admin' %}" class="card" role="listitem">
-        <div class="card-icon">🕒</div>
-        <div class="card-title">Historique des demandes</div>
+      <a href="{% url 'historique_demandes_admin' %}" class="card" role="listitem" tabindex="0">
+        <div class="card-icon bi bi-clock-history"></div>
+        <div class="card-title">Historique demandes</div>
         <div class="card-desc">Suivre toutes les demandes.</div>
       </a>
 
-    {% else %}
-      <a href="{% url 'stock_utilisateur' %}" class="card" role="listitem">
-        <div class="card-icon">📋</div>
-        <div class="card-title">Consulter mes produits</div>
+    {% elif user_role == 'staff' %}
+      <a href="{% url 'validation_demandes' %}" class="card" role="listitem" tabindex="0">
+        <div class="card-icon bi bi-check-square"></div>
+        <div class="card-title">Validation</div>
+        <div class="card-desc">Valider ou refuser les demandes.</div>
+      </a>
+      <a href="{% url 'consultation_depot' %}" class="card" role="listitem" tabindex="0">
+        <div class="card-icon bi bi-boxes"></div>
+        <div class="card-title">Consultation dépôt</div>
+        <div class="card-desc">Voir l’état du dépôt.</div>
+      </a>
+      <a href="{% url 'ajouter_produit' %}" class="card" role="listitem" tabindex="0">
+        <div class="card-icon bi bi-plus-square"></div>
+        <div class="card-title">Ajouter produit</div>
+        <div class="card-desc">Ajouter des articles au stock.</div>
+      </a>
+      <a href="{% url 'historique_demandes_admin' %}" class="card" role="listitem" tabindex="0">
+        <div class="card-icon bi bi-clock-history"></div>
+        <div class="card-title">Historique</div>
+        <div class="card-desc">Voir l’historique des demandes.</div>
+      </a>
+
+    {% elif user_role == 'user' %}
+      <a href="{% url 'stock_utilisateur' %}" class="card" role="listitem" tabindex="0">
+        <div class="card-icon bi bi-clipboard"></div>
+        <div class="card-title">Mes produits</div>
         <div class="card-desc">Voir votre stock personnel.</div>
       </a>
-
-      <a href="{% url 'demander_produit' %}" class="card" role="listitem">
-        <div class="card-icon">🛒</div>
-        <div class="card-title">Demander un produit</div>
+      <a href="{% url 'demander_produit' %}" class="card" role="listitem" tabindex="0">
+        <div class="card-icon bi bi-pencil-square"></div>
+        <div class="card-title">Demander produit</div>
         <div class="card-desc">Faire une nouvelle demande.</div>
       </a>
-
-      <a href="{% url 'historique_demandes' %}" class="card" role="listitem">
-        <div class="card-icon">📜</div>
+      <a href="{% url 'historique_demandes' %}" class="card" role="listitem" tabindex="0">
+        <div class="card-icon bi bi-clock-history"></div>
         <div class="card-title">Mon historique</div>
         <div class="card-desc">Voir vos demandes passées.</div>
       </a>
@@ -233,4 +259,5 @@
 
   <a href="{% url 'logout' %}" class="logout-button">Se déconnecter</a>
 </div>
+
 {% endblock %}

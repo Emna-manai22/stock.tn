@@ -8,9 +8,11 @@ class Depot(models.Model):
     code_depot = models.CharField(max_length=20, unique=True)
     libelle = models.CharField(max_length=100)
     etat = models.BooleanField(default=True)
+    is_siege = models.BooleanField(default=False)  # <-- nouveau champ
 
     def __str__(self):
         return f"{self.libelle} ({self.code_depot})"
+
 
 
 
@@ -98,6 +100,7 @@ class Stock(models.Model):
 
 
 # ===== DEMANDE DE STOCK =====
+# ===== DEMANDE DE STOCK =====
 class DemandeStock(models.Model):
     STATUT_CHOICES = [
         ('en_attente', 'En attente'),
@@ -112,6 +115,10 @@ class DemandeStock(models.Model):
     date_creation = models.DateTimeField(auto_now_add=True)
     statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='en_attente')
     motif_refus = models.TextField(blank=True, null=True)
+
+    vue_par_utilisateur = models.BooleanField(default=False)
+    vue_par_staff = models.BooleanField(default=False)
+    # <<<<<< AJOUT ICI
 
     def __str__(self):
         return f"Demande de {self.utilisateur.username} - {self.produit.nom} ({self.quantite_demandee})"

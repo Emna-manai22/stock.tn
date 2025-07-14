@@ -1,0 +1,44 @@
+{% extends "stockapp/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Transfert de stock</h2>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  {% if demandes %}
+  <table class="table table-bordered table-striped align-middle text-center">
+    <thead class="table-primary">
+      <tr>
+        <th>Produit</th>
+        <th>Quantité demandée</th>
+        <th>Agence</th>  <!-- Nouvelle colonne agence -->
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for demande in demandes %}
+      <tr>
+        <td>{{ demande.produit.nom }}</td>
+        <td>{{ demande.quantite_demandee }}</td>
+        <td>{{ demande.agence.libelle }}</td>  <!-- Affiche l'agence -->
+        <td>
+          <form method="post" action="{% url 'transferer_demande' demande.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary btn-sm">Transférer</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Aucune demande acceptée à transférer.</p>
+  {% endif %}
+</div>
+{% endblock %}
+

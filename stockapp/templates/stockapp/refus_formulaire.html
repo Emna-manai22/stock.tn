@@ -65,12 +65,16 @@
     <h1>Refuser la demande #{{ demande.id }}</h1>
     <p>Produit : <strong>{{ demande.produit.nom }}</strong></p>
     <p>Quantité demandée : <strong>{{ demande.quantite_demandee }}</strong></p>
+
     <form method="post">
       {% csrf_token %}
       <textarea name="motif_refus" placeholder="Saisissez le motif de refus..." required></textarea>
       <button type="submit" class="btn">Confirmer le refus</button>
     </form>
-    <a href="{% url 'historique_demandes_admin' %}" class="back-link">← Annuler</a>
+
+    <!-- ✅ Redirection vers validation_demandes (corrigé) -->
+    <a href="{% url 'validation_demandes' %}" class="back-link">← Annuler</a>
   </div>
 </body>
 </html>
+

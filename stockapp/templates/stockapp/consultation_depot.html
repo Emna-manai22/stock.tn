@@ -1,0 +1,84 @@
+{% extends "stockapp/base.html" %}
+{% block content %}
+<style>
+  /* Couleurs Topnet */
+  :root {
+    --topnet-blue: #002060; /* bleu foncé */
+    --topnet-orange: #f58220; /* orange vif */
+    --topnet-light-blue: #e6f0ff; /* bleu très clair pour fond */
+  }
+
+  .depot-header {
+    background-color: var(--topnet-blue);
+    color: white;
+    padding: 0.6rem 1rem;
+    border-radius: 0.4rem;
+    margin-top: 2rem;
+    box-shadow: 0 4px 6px rgb(0 32 96 / 0.3);
+  }
+
+  table.table {
+    border-radius: 0.4rem;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgb(0 32 96 / 0.15);
+  }
+
+  table.table thead {
+    background-color: var(--topnet-orange);
+    color: white;
+  }
+
+  table.table tbody tr:hover {
+    background-color: var(--topnet-light-blue);
+    transition: background-color 0.3s ease;
+  }
+
+  .no-stock, .no-depot {
+    font-style: italic;
+    color: var(--topnet-blue);
+    background-color: var(--topnet-light-blue);
+    padding: 0.5rem 1rem;
+    border-radius: 0.3rem;
+    margin-top: 1rem;
+  }
+
+  h2 {
+    color: var(--topnet-blue);
+    text-align: center;
+    margin-bottom: 2rem;
+    font-weight: 700;
+  }
+</style>
+
+<div class="container mt-5">
+  <h2>Consultation des dépôts</h2>
+
+  {% for depot, stocks in depot_stocks.items %}
+    <div class="depot-header">
+      <h4 class="mb-0">{{ depot.libelle }} ({{ depot.code_depot }})</h4>
+    </div>
+    {% if stocks %}
+      <table class="table table-bordered mt-3">
+        <thead>
+          <tr>
+            <th>Produit</th>
+            <th>Quantité en stock</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for stock in stocks %}
+          <tr>
+            <td>{{ stock.produit.nom }}</td>
+            <td>{{ stock.quantite }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="no-stock">Aucun stock disponible dans ce dépôt.</p>
+    {% endif %}
+  {% empty %}
+    <p class="no-depot">Aucun dépôt actif trouvé.</p>
+  {% endfor %}
+</div>
+{% endblock %}

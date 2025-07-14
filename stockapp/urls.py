@@ -1,3 +1,5 @@
+# stockapp/urls.py
+
 from django.urls import path
 from . import views
 
@@ -26,16 +28,20 @@ urlpatterns = [
     path('admin/gestion-stock/modifier/<int:produit_id>/', views.modifier_produit, name='modifier_produit'),
     path('admin/gestion-stock/supprimer/<int:produit_id>/', views.supprimer_produit, name='supprimer_produit'),
 
-    # Validation ou refus de demande (Admin)
-    path('admin/historique-demandes/accepter/<int:demande_id>/', views.accepter_demande, name='accepter_demande'),
-    path('admin/historique-demandes/refuser/<int:demande_id>/', views.refuser_demande, name='refuser_demande'),
+    # Validation ou refus de demande (Admin ou staff)
+    path('validation_demandes/', views.validation_demandes, name='validation_demandes'),
+    path('validation_demandes/<int:demande_id>/accepter/', views.accepter_demande, name='accepter_demande'),
+    path('validation_demandes/<int:demande_id>/refuser/', views.refuser_demande, name='refuser_demande'),
 
     # Pages staff ou superuser
-    path('validation-demandes/', views.validation_demandes, name='validation_demandes'),
     path('consultation-depot/', views.consultation_depot, name='consultation_depot'),
 
     # Pages utilisateur
     path('stock-utilisateur/', views.stock_utilisateur, name='stock_utilisateur'),
     path('demander-produit/', views.demander_produit, name='demander_produit'),
     path('historique-demandes/', views.historique_demandes, name='historique_demandes'),
+    path('transfert/', views.transfert_stock, name='transfert_stock'),
+    path('transfert/<int:demande_id>/', views.transferer_demande, name='transferer_demande'),
+path('consultation-depot/', views.consultation_depot, name='consultation_depot'),
+
 ]

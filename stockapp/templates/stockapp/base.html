@@ -4,20 +4,20 @@
 <head>
     <meta charset="UTF-8" />
     <title>{% block title %}StockApp{% endblock %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
     <style>
         :root {
-            --color-primary: #1a3d7c; /* bleu marine intermédiaire */
+            --color-primary: #1a3d7c;
             --color-secondary: #ff6600;
             --color-bg: #f7f9fc;
             --color-light: #ffffff;
@@ -36,18 +36,9 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            animation: fadeInBody 1s ease forwards;
-        }
-
-        @keyframes fadeInBody {
-            from { opacity: 0; }
-            to { opacity: 1; }
         }
 
         header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between; /* Logo à gauche, menu à droite */
             background: var(--color-primary);
             color: #fff;
             padding: 15px 30px;
@@ -57,55 +48,52 @@
             z-index: 1000;
         }
 
-        header a.logo img {
-            height: 36px;      /* logo simple, taille fixe */
+        header .navbar-brand img {
+            height: 36px;
             transition: transform var(--transition-speed);
-            display: block;
         }
 
-        header a.logo img:hover {
+        header .navbar-brand img:hover {
             transform: scale(1.05);
         }
 
-        nav {
-            display: flex;
-            gap: 30px;
-        }
-
-        nav a {
+        .nav-link {
             color: #fff;
-            text-decoration: none;
             font-weight: 600;
-            position: relative;
-            padding-bottom: 3px;
             transition: color var(--transition-speed);
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
-        nav a::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            height: 2px;
-            width: 0;
-            background: var(--color-secondary);
-            transition: width var(--transition-speed);
-        }
-
-        nav a:hover {
+        .nav-link:hover,
+        .nav-link:focus {
             color: var(--color-secondary);
+            outline: none;
         }
 
-        nav a:hover::after {
-            width: 100%;
+        .notification-icon {
+            position: relative;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .notification-icon .badge {
+            position: absolute;
+            top: -6px;
+            right: -10px;
+            background: red;
+            color: white;
+            font-size: 0.75rem;
+            padding: 3px 6px;
+            border-radius: 50%;
+            font-weight: bold;
+            line-height: 1;
         }
 
         main {
             flex: 1;
             padding: 40px 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
         }
 
         footer {
@@ -114,84 +102,208 @@
             text-align: center;
             padding: 15px 10px;
             font-size: 14px;
+            margin-top: auto;
         }
 
-        footer a {
-            color: var(--color-secondary);
-            text-decoration: none;
-            font-weight: 600;
-            transition: color var(--transition-speed);
-        }
-
-        footer a:hover {
-            color: #fff;
-            text-decoration: underline;
+        .alert {
+            font-family: var(--font-family);
         }
     </style>
 </head>
 
 <body>
-    <header>
-        <a href="{% url 'dashboard' %}" class="logo" aria-label="Accueil">
-            <img src="{% static 'images/logo.png' %}" alt="Logo Topnet">
-        </a>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark" aria-label="Navigation principale">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'dashboard' %}">
+                <img src="{% static 'images/logo.png' %}" alt="Logo Topnet" />
+            </a>
 
-        <nav aria-label="Menu principal">
-            <a href="{% url 'dashboard' %}"><i class="bi bi-speedometer2"></i> Accueil</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Basculer la navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-            {% if user_role == 'admin' %}
-                <a href="{% url 'admin_user_list' %}"><i class="bi bi-people-fill"></i> Utilisateurs</a>
-                <a href="{% url 'transfert_stock' %}"><i class="bi bi-arrow-left-right"></i> Transfert Stock</a>
-                <a href="{% url 'ajouter_produit' %}"><i class="bi bi-plus-square"></i> Ajouter Produit</a>
-                <a href="{% url 'gestion_stock' %}"><i class="bi bi-box-seam"></i> Gérer le Stock</a>
-                <a href="{% url 'historique_demandes_admin' %}"><i class="bi bi-clock-history"></i> Historique Demandes</a>
-            {% elif user_role == 'staff' %}
-                <a href="{% url 'validation_demandes' %}"><i class="bi bi-check-square"></i> Validation Demandes</a>
-                <a href="{% url 'consultation_depot' %}"><i class="bi bi-boxes"></i> Consultation Dépôt</a>
-                <a href="{% url 'historique_demandes_admin' %}"><i class="bi bi-clock-history"></i> Historique Demandes</a>
-            {% elif user_role == 'user' %}
-                <a href="{% url 'stock_utilisateur' %}"><i class="bi bi-box"></i> Mes Produits</a>
-                <a href="{% url 'demander_produit' %}"><i class="bi bi-pencil-square"></i> Demander Produit</a>
-                <a href="{% url 'historique_demandes' %}"><i class="bi bi-clock-history"></i> Mes Demandes</a>
-            {% endif %}
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard' %}">
+                            <i class="bi bi-speedometer2"></i> Accueil
+                        </a>
+                    </li>
 
-            {% if user.is_authenticated %}
-                <a href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Déconnexion</a>
-            {% endif %}
-        </nav>
-    </header>
+                    {% if user_role == 'admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'admin_user_list' %}">
+                                <i class="bi bi-people-fill"></i> Utilisateurs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'transfert_stock' %}">
+                                <i class="bi bi-arrow-left-right"></i> Transfert Stock
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'ajouter_produit' %}">
+                                <i class="bi bi-plus-square"></i> Ajouter Produit
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'gestion_stock' %}">
+                                <i class="bi bi-box-seam"></i> Gérer le Stock
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'historique_demandes_admin' %}">
+                                <i class="bi bi-clock-history"></i> Historique Demandes
+                            </a>
+                        </li>
 
-    <main class="container-fluid">
-        {% block content %}
-        {% endblock %}
-    </main>
+                        {% if notifications_admin %}
+                            <li class="nav-item notification-icon">
+                                <a id="notifAdminPopover" class="nav-link position-relative" href="{% url 'historique_demandes_admin' %}"
+                                   role="button" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="bottom"
+                                   title="Notifications"
+                                   data-bs-content="Vous avez {{ notifications_admin|length }} notification(s) en attente.">
+                                    <i class="bi bi-bell-fill fs-4 text-warning"></i>
+                                    <span class="badge">{{ notifications_admin|length }}</span>
+                                </a>
+                            </li>
+                        {% endif %}
 
-    <footer>
-        &copy; 2025 <strong>Topnet</strong>. Tous droits réservés.
-    </footer>
+                    {% elif user_role == 'staff' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'validation_demandes' %}">
+                                <i class="bi bi-check-square"></i> Validation Demandes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'consultation_depot' %}">
+                                <i class="bi bi-boxes"></i> Consultation Dépôt
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'historique_demandes_admin' %}">
+                                <i class="bi bi-clock-history"></i> Historique Demandes
+                            </a>
+                        </li>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                        {% if demandes_non_vues_staff %}
+                            <li class="nav-item notification-icon">
+                                <a id="notifStaffPopover" class="nav-link position-relative" href="{% url 'validation_demandes' %}"
+                                   role="button" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="bottom"
+                                   title="Notifications"
+                                   data-bs-content="Vous avez {{ demandes_non_vues_staff|length }} demande(s) en attente à valider.">
+                                    <i class="bi bi-chat-dots-fill fs-4 text-info"></i>
+                                    <span class="badge">{{ demandes_non_vues_staff|length }}</span>
+                                </a>
+                            </li>
+                        {% endif %}
 
-    {% if user.is_authenticated %}
-    <script>
-        (function() {
-            let timeout;
-            function startTimer() {
-                clearTimeout(timeout);
-                timeout = setTimeout(logout, 15 * 60 * 1000); // 15 min in ms
-            }
+                    {% elif user_role == 'user' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'stock_utilisateur' %}">
+                                <i class="bi bi-box"></i> Mes Produits
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'demander_produit' %}">
+                                <i class="bi bi-pencil-square"></i> Demander Produit
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'historique_demandes' %}">
+                                <i class="bi bi-clock-history"></i> Mes Demandes
+                            </a>
+                        </li>
 
-            function logout() {
-                window.location.href = "{% url 'logout' %}";
-            }
+                        {% if demandes_non_vues_utilisateur %}
+                            <li class="nav-item notification-icon">
+                                <a id="notifUserPopover" class="nav-link position-relative" href="{% url 'historique_demandes' %}"
+                                   role="button" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="bottom"
+                                   title="Notifications"
+                                   data-bs-content="Vous avez {{ demandes_non_vues_utilisateur|length }} réponse(s) à vos demandes.">
+                                    <i class="bi bi-chat-dots-fill fs-4 text-info"></i>
+                                    <span class="badge">{{ demandes_non_vues_utilisateur|length }}</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
 
-            window.onload = startTimer;
-            document.onmousemove = startTimer;
-            document.onkeypress = startTimer;
-            document.onclick = startTimer;
-            document.onscroll = startTimer;
-        })();
-    </script>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">
+                                <i class="bi bi-box-arrow-right"></i> Déconnexion
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-3" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+            </div>
+        {% endfor %}
     {% endif %}
+
+    {% block content %}
+    {% endblock %}
+</main>
+
+<footer>
+    &copy; 2025 <strong>Topnet</strong>. Tous droits réservés.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+{% if user.is_authenticated %}
+<script>
+    (function() {
+        let timeout;
+        function startTimer() {
+            clearTimeout(timeout);
+            timeout = setTimeout(logout, 15 * 60 * 1000);
+        }
+        function logout() {
+            window.location.href = "{% url 'logout' %}";
+        }
+        window.onload = startTimer;
+        document.onmousemove = startTimer;
+        document.onkeypress = startTimer;
+        document.onclick = startTimer;
+        document.onscroll = startTimer;
+    })();
+</script>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    ['notifAdminPopover', 'notifStaffPopover', 'notifUserPopover'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+            new bootstrap.Popover(el);
+        }
+    });
+    document.addEventListener('click', function (e) {
+        ['notifAdminPopover', 'notifStaffPopover', 'notifUserPopover'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                var popoverInstance = bootstrap.Popover.getInstance(el);
+                if (popoverInstance && !el.contains(e.target) && !document.querySelector('.popover')?.contains(e.target)) {
+                    popoverInstance.hide();
+                }
+            }
+        });
+    });
+});
+</script>
+
 </body>
 </html>

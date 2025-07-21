@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Reçu de Transfert</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+        h1 {
+            color: #1a3d7c;
+            font-size: 24px;
+        }
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Reçu de Transfert</h1>
+    <p>Numéro de demande : {{ demande.id }}</p>
+    <p>Produit : {{ demande.produit.nom }}</p>
+    <p>Quantité transférée : {{ demande.quantite_demandee }}</p>
+    <p>Agence : {{ demande.agence.libelle }}</p>
+    <p>Date : {{ date }}</p>
+</body>
+</html>

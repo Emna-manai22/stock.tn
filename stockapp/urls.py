@@ -40,8 +40,10 @@ urlpatterns = [
     path('stock-utilisateur/', views.stock_utilisateur, name='stock_utilisateur'),
     path('demander-produit/', views.demander_produit, name='demander_produit'),
     path('historique-demandes/', views.historique_demandes, name='historique_demandes'),
-    path('transfert/', views.transfert_stock, name='transfert_stock'),
-    path('transfert/<int:demande_id>/', views.transferer_demande, name='transferer_demande'),
-path('consultation-depot/', views.consultation_depot, name='consultation_depot'),
+path('transfert-stock/', views.transfert_stock, name='transfert_stock'),
+    path('transfert-stock/<int:demande_id>/', views.transferer_demande, name='transferer_demande'),
+    path('generate-receipt-pdf/', views.generate_receipt_pdf, name='generate_receipt_pdf'),
+    path('mes-produits/', views.mes_produits, name='mes_produits'),
 
 ]
+

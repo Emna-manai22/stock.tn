@@ -83,44 +83,39 @@ from django import forms
 from .models import Produit
 from django import forms
 from .models import Produit
+from django import forms
+from .models import Produit
+# stockapp/forms.py
+
+from django import forms
+from .models import Produit
+# stockapp/forms.py
+# forms.py
+
+from django import forms
+from .models import Produit
 
 class ProduitForm(forms.ModelForm):
-    quantite_initiale = forms.IntegerField(
-        required=False,
-        min_value=0,
-        label='Quantité initiale au siège',
-        help_text='Laisse vide si aucune quantité initiale.',
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
-    )
-
     class Meta:
         model = Produit
-        fields = ['nom', 'categorie', 'quantite']
+        fields = ['nom', 'categorie']
         widgets = {
             'nom': forms.TextInput(attrs={'class': 'form-control'}),
             'categorie': forms.Select(attrs={'class': 'form-control'}),
-            'quantite': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+# forms.py (dans le même fichier)
 
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
-
-        if user and user.is_superuser:
-            # Superuser ne touche à aucun champ de quantité
-            self.fields['quantite'].widget.attrs['readonly'] = True
-            self.fields['quantite'].required = False
-            self.fields['quantite'].widget.attrs['placeholder'] = "Non modifiable pour superuser"
-
-            self.fields['quantite_initiale'].widget.attrs['readonly'] = True
-            self.fields['quantite_initiale'].required = False
-            self.fields['quantite_initiale'].widget.attrs['placeholder'] = "Non modifiable pour superuser"
-
-        elif user and user.is_staff:
-            # Staff ne modifie pas quantite du modèle Produit directement
-            self.fields['quantite'].widget.attrs['readonly'] = True
-            self.fields['quantite'].required = False
-            self.fields['quantite'].widget.attrs['placeholder'] = "Quantité calculée automatiquement"
+class AjoutStockForm(forms.Form):
+    produit = forms.ModelChoiceField(
+        queryset=Produit.objects.all(),
+        label="Produit",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    quantite = forms.IntegerField(
+        label="Quantité à ajouter",
+        min_value=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
 
 # ==========================
 # FORMULAIRE DEMANDE STOCK

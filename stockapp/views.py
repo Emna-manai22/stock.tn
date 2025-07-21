@@ -7,6 +7,15 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import CustomUserCreationForm, ProduitForm, DemandeStockForm
 from .models import Produit, DemandeStock
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.http import HttpResponse
+from django.utils import timezone
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+
+from .models import DemandeStock, Depot, Stock
+
 
 CustomUser = get_user_model()
 
@@ -313,67 +322,63 @@ def user_delete(request, pk):
         return redirect('admin_user_list')
     return render(request, 'stockapp/admin_user_confirm_delete.html', {'user': user})
 
-
-from django.contrib.auth.decorators import user_passes_test, login_required
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from stockapp.models import DemandeStock, Stock, Depot  # adapte selon tes modèles
-
-@login_required
-@user_passes_test(lambda u: u.is_staff or u.is_superuser)
-def transfert_stock(request):
-    # Récupérer les demandes acceptées
-    demandes = DemandeStock.objects.filter(statut='acceptee').order_by('date_creation')
-    return render(request, 'stockapp/transfert_stock.html', {'demandes': demandes})
-
-
-from django.contrib.auth.decorators import user_passes_test, login_required
-from django.contrib import messages
 from django.shortcuts import render, redirect
-from .forms import ProduitForm
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib import messages
+from .forms import ProduitForm, AjoutStockForm
+from .models import Produit, Depot, Stock
+
+
 @user_passes_test(lambda u: u.is_superuser or u.is_staff)
 @login_required
 def ajouter_produit(request):
-    if request.method == 'POST':
-        form = ProduitForm(request.POST, user=request.user)
-        if form.is_valid():
-            produit = form.save(commit=False)
+    # Admin (superuser)
+    if request.user.is_superuser:
+        if request.method == 'POST':
+            form = ProduitForm(request.POST)
+            if form.is_valid():
+                produit = form.save(commit=False)
+                produit.quantite = 0  # Toujours zéro à la création
+                produit.save()
+                messages.success(request, "Produit créé avec succès.")
+                return redirect('dashboard')
+        else:
+            form = ProduitForm()
 
-            # Superuser → quantité du produit = 0
-            if request.user.is_superuser:
-                produit.quantite = 0
+        return render(request, 'stockapp/ajouter_produit_admin.html', {'form': form})
 
-            # Staff → quantité globale du produit = somme des stocks créés
-            produit.save()
+    # Staff
+    elif request.user.is_staff:
+        if request.method == 'POST':
+            form = AjoutStockForm(request.POST)
+            if form.is_valid():
+                produit = form.cleaned_data['produit']
+                quantite = form.cleaned_data['quantite']
 
-            if request.user.is_staff:
-                quantite_initiale = form.cleaned_data.get('quantite_initiale')
-                if quantite_initiale is not None:
-                    # Création du dépôt siège s’il n’existe pas
-                    depot_siege, _ = Depot.objects.get_or_create(
-                        is_siege=True,
-                        defaults={'code_depot': 'SIEGE', 'libelle': 'Stock Central'}
-                    )
-                    # Créer ou mettre à jour la ligne de stock siège
-                    stock_siege, created = Stock.objects.get_or_create(
-                        produit=produit,
-                        depot=depot_siege,
-                        defaults={'quantite': quantite_initiale}
-                    )
-                    if not created:
-                        stock_siege.quantite += quantite_initiale
-                        stock_siege.save()
+                # On récupère ou crée le dépôt siège
+                depot_siege, _ = Depot.objects.get_or_create(
+                    is_siege=True,
+                    defaults={'code_depot': 'SIEGE', 'libelle': 'Stock Central'}
+                )
 
-                    # mettre à jour la quantité globale dans Produit
-                    produit.quantite = stock_siege.quantite
-                    produit.save()
+                stock, created = Stock.objects.get_or_create(
+                    produit=produit,
+                    depot=depot_siege,
+                    defaults={'quantite': quantite}
+                )
+                if not created:
+                    stock.quantite += quantite
+                    stock.save()
 
-            messages.success(request, "Produit ajouté avec succès.")
-            return redirect('dashboard')
-    else:
-        form = ProduitForm(user=request.user)
+                produit.quantite = stock.quantite
+                produit.save()
 
-    return render(request, 'stockapp/ajouter_produit.html', {'form': form})
+                messages.success(request, f"Stock mis à jour : +{quantite} ajouté pour {produit.nom}.")
+                return redirect('dashboard')
+        else:
+            form = AjoutStockForm()
+
+        return render(request, 'stockapp/ajouter_produit_staff.html', {'form': form})
 
 
 @user_passes_test(lambda u: u.is_authenticated and u.is_superuser)
@@ -563,87 +568,119 @@ def liste_demandes_acceptees(request):
     return render(request, 'stockapp/transfert_stock.html', {
         'demandes': demandes,
     })
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponse
+from django.contrib import messages
+from io import BytesIO
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from .models import DemandeStock
+import datetime
 
-# stockapp/views.py
-# stockapp/views.py
-# stockapp/views.py
+def transfert_stock(request):
+    demandes = DemandeStock.objects.filter(statut='acceptee')
+    show_receipt_button = request.session.pop('show_receipt_button', False)
+    return render(request, 'stockapp/transfert_stock.html', {
+        'demandes': demandes,
+        'show_receipt_button': show_receipt_button,
+    })
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponse
+from django.contrib import messages
+from io import BytesIO
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from .models import DemandeStock
+import datetime
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponse
+from django.contrib import messages
+from io import BytesIO
+from reportlab.pdfgen import canvas
+from django.utils import timezone
 
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages
-from stockapp.models import DemandeStock, Stock, Depot
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages
-from stockapp.models import DemandeStock, Stock, Depot
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages
-from stockapp.models import DemandeStock, Depot, Stock
-# stockapp/views.py
-
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages
-from stockapp.models import DemandeStock, Depot, Stock
+from .models import DemandeStock
 
 def transferer_demande(request, demande_id):
-    # Récupérer la demande
-    demande = get_object_or_404(DemandeStock, id=demande_id, statut='acceptee')
-    produit = demande.produit
-    quantite = demande.quantite_demandee
-    agence = demande.agence
+    if request.method == 'POST':
+        demande = get_object_or_404(DemandeStock, id=demande_id, statut='acceptee')
 
-    # 1. Vérifier que l’agence a bien un dépôt
-    if agence.code_depot is None:
-        messages.error(
-            request,
-            f"L'agence {agence.libelle} n'a pas de dépôt associé."
-        )
+        produit = demande.produit
+        quantite = demande.quantite_demandee
+        agence = demande.agence
+
+        # Marquer la demande comme transférée
+        demande.statut = 'transferee'
+        demande.save()
+
+        # Sauvegarder les données du reçu en session
+        request.session['recu_data'] = {
+            'produit_nom': produit.nom,
+            'quantite': quantite,
+            'agence_libelle': agence.libelle,
+            'admin_username': request.user.username,
+            'date_transfert': timezone.now().strftime("%d/%m/%Y %H:%M"),
+        }
+        request.session['show_receipt_button'] = True
+
+        messages.success(request, "Le transfert a été effectué avec succès.")
+        return redirect('transfert_stock')
+    else:
+        return HttpResponse("Méthode non autorisée.", status=405)
+
+def generate_receipt_pdf(request):
+    data = request.session.get('recu_data')
+    if not data:
+        messages.error(request, "Aucune donnée de reçu à générer.")
         return redirect('transfert_stock')
 
-    # 2. Récupérer le dépôt siège
-    try:
-        depot_siege = Depot.objects.get(is_siege=True)
-    except Depot.DoesNotExist:
-        messages.error(request, "Le dépôt siège n'est pas configuré.")
-        return redirect('transfert_stock')
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="recu_transfert.pdf"'
 
-    # 3. Vérifier que le produit existe dans le stock siège
-    try:
-        stock_siege = Stock.objects.get(produit=produit, depot=depot_siege)
-    except Stock.DoesNotExist:
-        messages.error(
-            request,
-            f"Produit {produit.nom} introuvable dans le stock siège."
-        )
-        return redirect('transfert_stock')
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer)
 
-    # 4. Vérifier la quantité disponible
-    if stock_siege.quantite < quantite:
-        messages.error(
-            request,
-            f"Quantité insuffisante dans le stock siège pour {produit.nom}."
-        )
-        return redirect('transfert_stock')
+    p.setFont("Helvetica-Bold", 16)
+    p.drawString(50, 800, "Reçu de Transfert")
 
-    # 5. Diminuer la quantité dans le stock siège
-    stock_siege.quantite -= quantite
-    stock_siege.save()
+    y = 760
+    lines = [
+        f"Date : {data['date_transfert']}",
+        f"Agence demandeuse : {data['agence_libelle']}",
+        f"Produit : {data['produit_nom']}",
+        f"Quantité transférée : {data['quantite']}",
+        f"Transfert effectué par : {data['admin_username']}",
+        "",
+        "Signature admin : __________________________",
+    ]
 
-    # 6. Augmenter le stock dans le dépôt agence
-    stock_agence, created = Stock.objects.get_or_create(
-        produit=produit,
-        depot=agence.code_depot,
-        defaults={'quantite': 0}
-    )
-    stock_agence.quantite += quantite
-    stock_agence.save()
+    for line in lines:
+        p.drawString(50, y, line)
+        y -= 25
 
-    # 7. Supprimer la demande ou la marquer comme transférée
-    demande.delete()
-    # OU si tu souhaites garder la trace :
-    # demande.statut = 'transfere'
-    # demande.save()
+    p.showPage()
+    p.save()
+    buffer.seek(0)
 
-    messages.success(
-        request,
-        f"Transfert de {quantite} {produit.nom} vers l'agence {agence.libelle} effectué avec succès."
-    )
-    return redirect('transfert_stock')
+    # Supprimer la donnée après génération
+    request.session.pop('recu_data', None)
+    request.session.pop('show_receipt_button', None)
+
+    response.write(buffer.getvalue())
+    return response
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import Stock
+
+@login_required
+def mes_produits(request):
+    user = request.user
+
+    # Vérifie si l'utilisateur a une agence avec un dépôt
+    if user.agence and user.agence.code_depot:
+        produits = Stock.objects.filter(depot=user.agence.code_depot)
+    else:
+        produits = []  # ou None
+
+    return render(request, 'stockapp/mes_produits.html', {'produits': produits})

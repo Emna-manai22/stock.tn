@@ -1,0 +1,30 @@
+{% extends 'stockapp/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Mes Produits en stock</h2>
+
+  {% if produits %}
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Nom du produit</th>
+          <th>Quantité</th>
+          <th>Dépôt</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in produits %}
+        <tr>
+          <td>{{ p.produit.nom }}</td>
+          <td>{{ p.quantite }}</td>
+          <td>{{ p.depot.libelle }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="alert alert-info">Aucun produit trouvé pour votre agence.</p>
+  {% endif %}
+</div>
+{% endblock %}

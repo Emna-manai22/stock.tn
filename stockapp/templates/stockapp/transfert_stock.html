@@ -1,44 +1,144 @@
 {% extends "stockapp/base.html" %}
 
 {% block content %}
-<div class="container mt-5">
-  <h2 class="mb-4">Transfert de stock</h2>
+<style>
+  /* Animations */
+  .fade-in {
+      animation: fadeInUp 0.7s ease;
+  }
+
+  @keyframes fadeInUp {
+      from {
+          opacity: 0;
+          transform: translateY(20px);
+      }
+      to {
+          opacity: 1;
+          transform: translateY(0);
+      }
+  }
+
+  /* Table styling */
+  table.table-custom {
+      border-collapse: collapse;
+      width: 100%;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  }
+
+  table.table-custom thead {
+      background: #005baa;
+      color: white;
+  }
+
+  table.table-custom th, table.table-custom td {
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+  }
+
+  table.table-custom tbody tr:hover {
+      background-color: #f2f2f2;
+      transition: background 0.3s;
+  }
+
+  /* Buttons */
+  .btn-primary-custom {
+      background-color: #005baa;
+      border-color: #005baa;
+      color: #fff;
+      transition: background-color 0.3s, transform 0.3s;
+  }
+
+  .btn-primary-custom:hover {
+      background-color: #003f7f;
+      transform: scale(1.05);
+  }
+
+  .btn-success-custom {
+      background-color: #f47b20;
+      border-color: #f47b20;
+      color: #fff;
+      transition: background-color 0.3s, transform 0.3s;
+  }
+
+  .btn-success-custom:hover {
+      background-color: #d5620d;
+      transform: scale(1.05);
+  }
+
+  /* Alert styling */
+  .alert {
+      border-radius: 5px;
+      font-size: 1rem;
+  }
+
+  .alert-success {
+      background-color: #d1e7dd;
+      color: #0f5132;
+  }
+
+  .alert-danger {
+      background-color: #f8d7da;
+      color: #842029;
+  }
+</style>
+
+<div class="container mt-5 fade-in">
+  <h2 class="mb-4 text-center" style="color: #005baa; font-weight: bold;">
+    <i class="bi bi-box-arrow-right"></i> Transfert de stock
+  </h2>
 
   {% if messages %}
     {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
     {% endfor %}
   {% endif %}
 
   {% if demandes %}
-  <table class="table table-bordered table-striped align-middle text-center">
-    <thead class="table-primary">
-      <tr>
-        <th>Produit</th>
-        <th>Quantité demandée</th>
-        <th>Agence</th>  <!-- Nouvelle colonne agence -->
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for demande in demandes %}
-      <tr>
-        <td>{{ demande.produit.nom }}</td>
-        <td>{{ demande.quantite_demandee }}</td>
-        <td>{{ demande.agence.libelle }}</td>  <!-- Affiche l'agence -->
-        <td>
-          <form method="post" action="{% url 'transferer_demande' demande.id %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary btn-sm">Transférer</button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <div class="table-responsive">
+      <table class="table table-custom">
+        <thead>
+          <tr>
+            <th>Produit</th>
+            <th>Quantité demandée</th>
+            <th>Agence</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for demande in demandes %}
+            <tr>
+              <td>{{ demande.produit.nom }}</td>
+              <td>{{ demande.quantite_demandee }}</td>
+              <td>{{ demande.agence.libelle }}</td>
+              <td>
+                <form method="post" action="{% url 'transferer_demande' demande.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-primary-custom btn-sm">
+                    <i class="bi bi-arrow-right-circle"></i> Transférer
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   {% else %}
-  <p>Aucune demande acceptée à transférer.</p>
+    <p class="text-center fst-italic">Aucune demande acceptée à transférer.</p>
+  {% endif %}
+
+  {% if show_receipt_button %}
+    <div class="mt-4 text-center">
+      <a href="{% url 'generate_receipt_pdf' %}" class="btn btn-success-custom btn-lg">
+        <i class="bi bi-download"></i> Télécharger le reçu PDF
+      </a>
+    </div>
   {% endif %}
 </div>
 {% endblock %}
-

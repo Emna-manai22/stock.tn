@@ -1,21 +1,10 @@
-from django.shortcuts import render, redirect, get_object_or_404
+
 from django.contrib.auth import login, logout, get_user_model
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.forms import AuthenticationForm
 from django.urls import reverse_lazy
-from django.contrib import messages
+
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import CustomUserCreationForm, ProduitForm, DemandeStockForm
-from .models import Produit, DemandeStock
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from django.http import HttpResponse
-from django.utils import timezone
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
-
-from .models import DemandeStock, Depot, Stock
-
 
 CustomUser = get_user_model()
 
@@ -82,15 +71,7 @@ def role_redirect(request):
     return redirect('dashboard')
 
 
-# -------- DASHBOARD UNIQUE --------
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.shortcuts import render
-from stockapp.models import DemandeStock
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from stockapp.models import DemandeStock
 
 @login_required
 def dashboard(request):
@@ -141,30 +122,10 @@ def stock_utilisateur(request):
     return render(request, 'stockapp/stock_utilisateur.html', {'produits': produits})
 
 
-# -------- DEMANDE PRODUIT --------
-# views.py
-
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import DemandeStockForm
-from .models import Produit
-
-# views.py
-
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import DemandeStockForm
-from .models import Produit, DemandeStock
-
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.contrib import messages
+
 from .forms import DemandeStockForm
 
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import DemandeStockForm
 
 @login_required
 def demander_produit(request):
@@ -174,14 +135,23 @@ def demander_produit(request):
             demande = form.save(commit=False)
             produit = demande.produit
 
+            # ✅ Vérifier quantité > 0
             if demande.quantite_demandee <= 0:
                 messages.error(request, "La quantité demandée doit être positive.")
                 return redirect('demander_produit')
 
+            # ✅ Vérifier que l’utilisateur a une agence
+            if not request.user.agence:
+                messages.error(request, "Votre compte n'est pas associé à une agence.")
+                return redirect('demander_produit')
+
+            # ✅ Vérifier que le produit est disponible
             if produit.quantite >= demande.quantite_demandee:
+                # Décrémenter le stock global (ou temporaire)
                 produit.quantite -= demande.quantite_demandee
                 produit.save()
 
+                # ✅ Lier la demande à l'utilisateur et à son agence
                 demande.utilisateur = request.user
                 demande.agence = request.user.agence
                 demande.vue_par_utilisateur = False
@@ -198,9 +168,6 @@ def demander_produit(request):
         form = DemandeStockForm()
 
     return render(request, 'stockapp/demande_produit.html', {'form': form})
-
-from django.shortcuts import render
-from .models import DemandeStock
 
 @login_required
 def historique_demandes(request):
@@ -226,20 +193,6 @@ def historique_demandes(request):
 
 def is_superuser_or_staff(user):
     return user.is_authenticated and (user.is_superuser or getattr(user, 'is_staff_app', False))
-
-
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from .models import DemandeStock
-
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from .models import DemandeStock
-
-
-from django.shortcuts import render
-from .models import DemandeStock
 
 def consultation_depot(request):
     # Récupérer tous les dépôts actifs
@@ -322,13 +275,8 @@ def user_delete(request, pk):
         return redirect('admin_user_list')
     return render(request, 'stockapp/admin_user_confirm_delete.html', {'user': user})
 
-from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib import messages
 from .forms import ProduitForm, AjoutStockForm
-from .models import Produit, Depot, Stock
-
-
 @user_passes_test(lambda u: u.is_superuser or u.is_staff)
 @login_required
 def ajouter_produit(request):
@@ -456,31 +404,14 @@ def user_create(request):
     }
     return render(request, 'stockapp/user_create.html', context)
 
-from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import user_passes_test
-from django.contrib import messages
-from .models import DemandeStock
-
-
-
 from django.contrib.auth.decorators import user_passes_test, login_required
-from django.views.decorators.http import require_POST
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from .models import DemandeStock
 
-from django.contrib.auth.decorators import user_passes_test
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from .models import DemandeStock
 
 def is_superuser_or_staff(user):
     return user.is_superuser or user.groups.filter(name='staff').exists() or user.is_staff
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
+
 from django.contrib.auth.decorators import user_passes_test
-from .models import DemandeStock
+
 
 @user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def validation_demandes(request):
@@ -490,8 +421,6 @@ def validation_demandes(request):
     })
 
 from django.contrib.auth.decorators import user_passes_test
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages
 
 @user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def accepter_demande(request, demande_id):
@@ -555,27 +484,14 @@ def marquer_notifications_staff_lues(request):
     messages.success(request, "Notifications marquées comme lues.")
     return redirect('historique_demandes_admin')
 
-
-# stockapp/views.py
-# stockapp/views.py
-
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from stockapp.models import DemandeStock, Stock, Depot, Agence
-
 def liste_demandes_acceptees(request):
     demandes = DemandeStock.objects.filter(statut='acceptee')
     return render(request, 'stockapp/transfert_stock.html', {
         'demandes': demandes,
     })
-from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse
-from django.contrib import messages
+
 from io import BytesIO
 from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
-from .models import DemandeStock
-import datetime
 
 def transfert_stock(request):
     demandes = DemandeStock.objects.filter(statut='acceptee')
@@ -584,49 +500,66 @@ def transfert_stock(request):
         'demandes': demandes,
         'show_receipt_button': show_receipt_button,
     })
-from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse
-from django.contrib import messages
-from io import BytesIO
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
-from .models import DemandeStock
-import datetime
-from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse
-from django.contrib import messages
-from io import BytesIO
-from reportlab.pdfgen import canvas
-from django.utils import timezone
 
-from .models import DemandeStock
-
+from django.http import HttpResponse
+from .models import Stock, DemandeStock, Depot  # Ajuste selon tes imports
+from django.shortcuts import get_object_or_404
+from django.contrib import messages
+from django.shortcuts import redirect
+from .models import Produit, Stock, Depot, DemandeStock
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from .models import Produit, Stock, Depot, DemandeStock
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from .models import Produit, Stock, Depot, DemandeStock
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from .models import Produit, Stock, Depot, DemandeStock
 def transferer_demande(request, demande_id):
-    if request.method == 'POST':
-        demande = get_object_or_404(DemandeStock, id=demande_id, statut='acceptee')
+    demande = get_object_or_404(DemandeStock, id=demande_id)
+    produit = demande.produit
+    quantite = demande.quantite_demandee
+    agence = demande.agence
 
-        produit = demande.produit
-        quantite = demande.quantite_demandee
-        agence = demande.agence
+    try:
+        depot_siege = Depot.objects.get(is_siege=True)
+    except Depot.DoesNotExist:
+        messages.error(request, "Le dépôt du siège n'existe pas.")
+        return redirect('historique_demandes_admin')
 
-        # Marquer la demande comme transférée
-        demande.statut = 'transferee'
-        demande.save()
+    try:
+        stock_siege = Stock.objects.get(produit=produit, depot=depot_siege)
+    except Stock.DoesNotExist:
+        messages.error(request, "Produit non disponible au dépôt du siège.")
+        return redirect('historique_demandes_admin')
 
-        # Sauvegarder les données du reçu en session
-        request.session['recu_data'] = {
-            'produit_nom': produit.nom,
-            'quantite': quantite,
-            'agence_libelle': agence.libelle,
-            'admin_username': request.user.username,
-            'date_transfert': timezone.now().strftime("%d/%m/%Y %H:%M"),
-        }
-        request.session['show_receipt_button'] = True
+    if stock_siege.quantite < quantite:
+        messages.error(request, "Quantité insuffisante au dépôt du siège.")
+        return redirect('historique_demandes_admin')
 
-        messages.success(request, "Le transfert a été effectué avec succès.")
-        return redirect('transfert_stock')
-    else:
-        return HttpResponse("Méthode non autorisée.", status=405)
+    if agence.depot is None:
+        messages.error(request, "L'agence n'a pas de dépôt associé.")
+        return redirect('historique_demandes_admin')
+
+    stock_agence, created = Stock.objects.get_or_create(
+        produit=produit,
+        depot=agence.depot,
+        defaults={'quantite': 0}
+    )
+
+    stock_siege.quantite -= quantite
+    stock_siege.save()
+
+    stock_agence.quantite += quantite
+    stock_agence.save()
+
+    demande.statut = 'traitee'
+    demande.save()
+
+    messages.success(request, "Transfert effectué avec succès.")
+    return redirect('historique_demandes_admin')
+
 
 def generate_receipt_pdf(request):
     data = request.session.get('recu_data')
@@ -684,3 +617,23 @@ def mes_produits(request):
         produits = []  # ou None
 
     return render(request, 'stockapp/mes_produits.html', {'produits': produits})
+def get_stock_principal(produit):
+    depot_principal = Depot.objects.get(is_siege=True)
+    stock_principal, created = Stock.objects.get_or_create(produit=produit, depot=depot_principal)
+    return stock_principal
+
+
+def modifier_stock_principal(request, produit_id):
+    produit = get_object_or_404(Produit, id=produit_id)
+    stock_principal = get_stock_principal(produit)
+
+    if request.method == 'POST':
+        nouvelle_quantite = int(request.POST.get('quantite', 0))
+        stock_principal.quantite = nouvelle_quantite
+        stock_principal.save()
+        messages.success(request, f"Quantité mise à jour pour le stock principal de {produit.nom}.")
+        return redirect('gestion_stock')
+
+    return render(request, 'stockapp/modifier_stock_principal.html', {'produit': produit, 'stock': stock_principal})
+
+

@@ -1,31 +1,28 @@
-# stockapp/models.py
-
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 # ===== DEPOT =====
 class Depot(models.Model):
     code_depot = models.CharField(max_length=20, unique=True)
-    libelle = models.CharField(max_length=100)
     etat = models.BooleanField(default=True)
-    is_siege = models.BooleanField(default=False)  # <-- nouveau champ
-
+    is_siege = models.BooleanField(default=False)  # ✅ True pour le dépôt principal (siège)
+    libelle = models.CharField(max_length=100, unique=True)
     def __str__(self):
         return f"{self.libelle} ({self.code_depot})"
-
-
 
 
 # ===== AGENCE =====
 class Agence(models.Model):
     code_agence = models.CharField(max_length=20, unique=True, default='unknown')
     libelle = models.CharField(max_length=100)
-    code_depot = models.ForeignKey(
+
+    # ✅ Chaque agence est liée à un seul dépôt
+    depot = models.OneToOneField(
         Depot,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name='agences'
+        related_name='agence'
     )
 
     def __str__(self):
@@ -56,6 +53,7 @@ class CustomUser(AbstractUser):
     username = models.CharField(max_length=150, unique=False)
     email = models.EmailField(unique=True)
     matricule = models.CharField(max_length=50, unique=True)
+
     agence = models.ForeignKey(
         Agence,
         on_delete=models.SET_NULL,
@@ -66,7 +64,7 @@ class CustomUser(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'matricule', 'agence']
 
-    objects = CustomUserManager()  # <<<<<< AJOUT OBLIGATOIRE
+    objects = CustomUserManager()
 
     def __str__(self):
         return self.email
@@ -78,7 +76,6 @@ class Produit(models.Model):
         ('informatique', 'Informatique'),
         ('bureautique', 'Bureautique'),
         ('mobilier', 'Mobilier'),
-
     ]
 
     nom = models.CharField(max_length=100, unique=True)
@@ -92,20 +89,21 @@ class Produit(models.Model):
 # ===== STOCK =====
 class Stock(models.Model):
     produit = models.ForeignKey(Produit, on_delete=models.CASCADE)
-    depot = models.ForeignKey(Depot, on_delete=models.CASCADE)
+    depot = models.ForeignKey(Depot, on_delete=models.CASCADE)  # ✅ depot obligatoire
     quantite = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return f"{self.produit.nom} - {self.depot.code_depot} : {self.quantite}"
+        return f"{self.produit.nom} - {self.depot.libelle} : {self.quantite}"
 
 
-# ===== DEMANDE DE STOCK =====
 # ===== DEMANDE DE STOCK =====
 class DemandeStock(models.Model):
     STATUT_CHOICES = [
         ('en_attente', 'En attente'),
         ('acceptee', 'Acceptée'),
         ('refusee', 'Refusée'),
+        ('transferee', 'Transférée'),
+        ('traitee', 'Traitée'),  # Ajouter si absent
     ]
 
     utilisateur = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -118,7 +116,6 @@ class DemandeStock(models.Model):
 
     vue_par_utilisateur = models.BooleanField(default=False)
     vue_par_staff = models.BooleanField(default=False)
-    # <<<<<< AJOUT ICI
 
     def __str__(self):
         return f"Demande de {self.utilisateur.username} - {self.produit.nom} ({self.quantite_demandee})"

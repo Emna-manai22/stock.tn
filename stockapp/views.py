@@ -502,17 +502,6 @@ def transfert_stock(request):
     })
 
 from django.http import HttpResponse
-from .models import Stock, DemandeStock, Depot  # Ajuste selon tes imports
-from django.shortcuts import get_object_or_404
-from django.contrib import messages
-from django.shortcuts import redirect
-from .models import Produit, Stock, Depot, DemandeStock
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages
-from .models import Produit, Stock, Depot, DemandeStock
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages
-from .models import Produit, Stock, Depot, DemandeStock
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from .models import Produit, Stock, Depot, DemandeStock
@@ -538,22 +527,25 @@ def transferer_demande(request, demande_id):
         messages.error(request, "Quantité insuffisante au dépôt du siège.")
         return redirect('historique_demandes_admin')
 
-    if agence.depot is None:
+    if not agence.depot:
         messages.error(request, "L'agence n'a pas de dépôt associé.")
         return redirect('historique_demandes_admin')
 
+    # 🔄 Obtenir ou créer le stock de l’agence
     stock_agence, created = Stock.objects.get_or_create(
         produit=produit,
         depot=agence.depot,
         defaults={'quantite': 0}
     )
 
+    # 💼 Mettre à jour les quantités
     stock_siege.quantite -= quantite
     stock_siege.save()
 
     stock_agence.quantite += quantite
     stock_agence.save()
 
+    # ✅ Marquer la demande comme traitée
     demande.statut = 'traitee'
     demande.save()
 
